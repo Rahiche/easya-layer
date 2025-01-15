@@ -1,5 +1,5 @@
 import { BlockchainProvider, NFT, NFTConfig, TokenConfig, TransactionConfig, TransactionResult, WalletInfo } from "../core/types";
-import { AccountSet, Client, MPTAmount, NFTokenMint, Payment, Transaction, TrustSet, dropsToXrp, xrpToDrops } from "xrpl";
+import { AccountSet, Client, NFTokenMint, Payment, TrustSet, dropsToXrp, xrpToDrops } from "xrpl";
 import sdk from '@crossmarkio/sdk';
 
 export interface XRPLUtils {
