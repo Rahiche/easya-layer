@@ -9,6 +9,10 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "typescript": "^4.9.5",
+    "@aptos-labs/ts-sdk": "^1.33.1",
+    "@crossmarkio/sdk": "^0.4.0",
+    "aptos": "^1.21.0",
+    "xrpl": "^4.1.0",
     "easya-sdk": "../easya-sdk"
   },
   "scripts": {
