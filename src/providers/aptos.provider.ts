@@ -61,6 +61,60 @@ export class AptosProvider implements AptosBlockchainProvider {
         this.tokenClient = new TokenClient(this.client);
         this.coinClient = new CoinClient(this.client);
     }
+    disconnect(): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+    establishConnection(): Promise<any> {
+        throw new Error("Method not implemented.");
+    }
+    getTransactionStatus(hash: string): Promise<TransactionResult> {
+        throw new Error("Method not implemented.");
+    }
+    estimateFee(config: TransactionConfig): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
+    validateAddress(address: string): boolean {
+        throw new Error("Method not implemented.");
+    }
+    mintToken(config: TokenConfig): Promise<TransactionResult> {
+        throw new Error("Method not implemented.");
+    }
+    transferToken(config: TransactionConfig): Promise<TransactionResult> {
+        throw new Error("Method not implemented.");
+    }
+    getTokenBalance(tokenId: string, address?: string): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
+    getNFTBalance(address?: string): Promise<Array<string>> {
+        throw new Error("Method not implemented.");
+    }
+    getNFTMetadata(tokenId: string): Promise<Record<string, any>> {
+        throw new Error("Method not implemented.");
+    }
+    getNFTs(address?: string): Promise<Array<NFT>> {
+        throw new Error("Method not implemented.");
+    }
+    getNetwork(): string {
+        throw new Error("Method not implemented.");
+    }
+    isConnected(): boolean {
+        throw new Error("Method not implemented.");
+    }
+    getBlockHeight(): Promise<number> {
+        throw new Error("Method not implemented.");
+    }
+    sign(message: string): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
+    verify(message: string, signature: string, address: string): Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
+    subscribeToEvents(eventName: string, callback: (data: any) => void): void {
+        throw new Error("Method not implemented.");
+    }
+    unsubscribeFromEvents(eventName: string): void {
+        throw new Error("Method not implemented.");
+    }
 
     async isWalletInstalled(): Promise<boolean> {
         return !!(window as any).aptos;
