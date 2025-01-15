@@ -43,6 +43,7 @@ export interface WalletInfo {
 export interface TransactionResult {
   hash: string;
   status?: string;
+  nftID?: string;
   //confirmations?: number;
   //timestamp?: number;
   //details?: Record<string, any>;

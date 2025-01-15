@@ -72,7 +72,7 @@ export const mintNFT = async (sdk: EasyaSDK | null, values: BlockchainValues, se
         };
 
         const result = await sdk.mintNFT(nftConfig);
-        setTransactionStatus(`NFT minted successfully! Transaction hash: ${result.hash}`);
+        setTransactionStatus(`NFT minted successfully! ${result.nftID}`);
 
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';

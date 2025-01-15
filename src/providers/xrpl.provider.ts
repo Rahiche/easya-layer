@@ -321,9 +321,14 @@ export class XRPLProvider implements XRPLBlockchainProvider {
             if (!response || !response.data) {
                 throw new Error('NFT minting failed');
             }
-
+            console.log(`response ${JSON.stringify(response)}`);
+            const meta = response.data.resp.result.meta;
+            const nftID = typeof meta === 'object' && 'nftoken_id' in meta ? meta.nftoken_id : undefined;
+            console.log(`nftID ${nftID}`);
+            
             return {
-                hash: response.data.resp.result.hash
+                hash: response.data.resp.result.hash,
+                nftID: `${nftID}`,
             };
         } catch (error) {
             throw new Error(`NFT minting failed: ${error}`);
