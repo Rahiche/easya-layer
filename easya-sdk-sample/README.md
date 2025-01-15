@@ -47,7 +47,7 @@ npm start
 
 ## Sample Implementation
 
-Here's how to create a basic implementation using EasyaSDK:
+Here's how to create a basic implementation using EasyaSDK. This allows you to connect or disconnect from a default wallet and display the account balance in the native currency:
 
 ```tsx
 import React from 'react';
@@ -71,11 +71,6 @@ const App: React.FC = () => {
                                 <div className="components-container">
                                     <EasyaSDK.ConnectButton />
                                     <EasyaSDK.BalanceDisplay />
-                                    <EasyaSDK.AddressDisplay />
-                                    <EasyaSDK.NFTMintingForm />
-                                    <EasyaSDK.NFTTransferForm />
-                                    <EasyaSDK.NFTGallery />
-                                    <EasyaSDK.TransactionForm />
                                 </div>
                             </div>
                         </div>
