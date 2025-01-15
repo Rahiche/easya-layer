@@ -54,6 +54,33 @@ export class XRPLProvider implements XRPLBlockchainProvider {
         this.network = network;
     }
 
+    async isWalletInstalled(): Promise<boolean> {
+        const maxRetries = 3;
+        const delayMs = 1000;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                const isInstalled = sdk.sync.isInstalled() ?? false;
+                if (isInstalled) {
+                    return true;
+                }
+
+                // If not installed, wait and retry unless it's the last attempt
+                if (attempt < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, delayMs));
+                    console.debug(`Wallet not detected on attempt ${attempt}/${maxRetries}, retrying...`);
+                    continue;
+                }
+            } catch (error) {
+                if (attempt === maxRetries) {
+                    throw new Error(`Failed to check if wallet is installed after ${maxRetries} attempts: ${error}`);
+                }
+                await new Promise(resolve => setTimeout(resolve, delayMs));
+                console.warn(`Error on attempt ${attempt}/${maxRetries}, retrying...`);
+            }
+        }
+        return false;
+    }
+
     async getBalance(address?: string): Promise<number> {
         try {
             if (!this.connection || !this.connection.isConnected()) {
@@ -175,7 +202,6 @@ export class XRPLProvider implements XRPLBlockchainProvider {
             // Request wallet connection
             let { request, response, createdAt, resolvedAt } = await sdk.methods.signInAndWait();
 
-
             // Verify connection and return wallet info
             if (!response || !response.data.address) {
                 throw new Error('Failed to connect to Crossmark wallet');
@@ -237,7 +263,7 @@ export class XRPLProvider implements XRPLBlockchainProvider {
                 TransactionType: "Payment",
                 Account: this.wallet.address,
                 Destination: config.to,
-                Amount: config.amount.toString(),
+                Amount: (Number(config.amount) * 1000000).toString(),
             };
 
             // Autofill fields like Fee, Sequence, and LastLedgerSequence

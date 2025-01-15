@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
 
 interface ConnectButtonProps {
@@ -10,14 +10,36 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ className = '' }) => {
     connectionStatus,
     connectToBlockchain,
     disconnectFromBlockchain,
-    transactionStatus
+    transactionStatus,
+    checkWalletInstalled 
   } = useBlockchain();
+
+  const [isWalletInstalled, setIsWalletInstalled] = useState<boolean | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const isConnecting = connectionStatus === 'Connecting...';
   const isDisconnecting = connectionStatus === 'Disconnecting...';
-  const isConnected = connectionStatus == 'Connected';
+  const isConnected = connectionStatus === 'Connected';
+
+  useEffect(() => {
+    const checkWallet = async () => {
+      try {
+        const hasWallet = await checkWalletInstalled();
+        setIsWalletInstalled(hasWallet);
+        if (!hasWallet) {
+          setErrorMessage('Please install a wallet to connect to the blockchain');
+        }
+      } catch (error) {
+        setIsWalletInstalled(false);
+        setErrorMessage('Error checking wallet status');
+      }
+    };
+
+    checkWallet();
+  }, [checkWalletInstalled]);
 
   const getButtonClass = (): string => {
+    if (!isWalletInstalled) return 'button-error';
     if (isConnected) return 'button-disconnected';
     if (isConnecting) return 'button-connecting';
     if (isDisconnecting) return 'button-disconnecting';
@@ -25,19 +47,28 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ className = '' }) => {
   };
 
   const getButtonText = (): string => {
-    console.log(`connectionStatus ${connectionStatus}`);
+    if (!isWalletInstalled) return 'Wallet Not Found';
     if (isConnected) return 'Disconnect';
     if (isConnecting) return 'Connecting...';
     if (isDisconnecting) return 'Disconnecting...';
     return 'Connect to Blockchain';
   };
 
-  const handleClick = () => {
-    console.log(`isConnected ${isConnected}`);
-    if (isConnected) {
-      disconnectFromBlockchain();
-    } else {
-      connectToBlockchain();
+  const handleClick = async () => {
+    if (!isWalletInstalled) {
+      setErrorMessage('Please install a wallet to connect to the blockchain');
+      return;
+    }
+
+    try {
+      if (isConnected) {
+        await disconnectFromBlockchain();
+      } else {
+        await connectToBlockchain();
+      }
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to connect to blockchain');
     }
   };
 
@@ -45,11 +76,16 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ className = '' }) => {
     <div className="connect-button-container">
       <button
         onClick={handleClick}
-        disabled={isConnecting || isDisconnecting}
+        disabled={!isWalletInstalled || isConnecting || isDisconnecting}
         className={`connect-button ${getButtonClass()} ${className}`}
       >
         {getButtonText()}
       </button>
+      {errorMessage && (
+        <div className="text-red-500 text-sm mt-2">
+          {errorMessage}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
+import TransactionStatus from './TransactionStatus';
 
 interface FieldConfig {
   show: boolean;
@@ -113,22 +114,6 @@ export const NFTMintingForm: React.FC<NFTMintingFormProps> = ({ config = {} }) =
     description: ''
   });
 
-  const finalConfig: NFTFormConfig = {
-    ...defaultConfig,
-    ...Object.fromEntries(
-      Object.entries(config).map(([key, value]) => [
-        key,
-        typeof value === 'object' 
-          ? { ...(defaultConfig[key as keyof NFTFormConfig] as object), ...(value as object) }
-          : value
-      ])
-    )
-  } as NFTFormConfig;
-
-  const handleMetadataChange = (field: keyof typeof metadataFields) => (value: string) => {
-    setMetadataFields(prev => ({ ...prev, [field]: value }));
-  };
-
   function createMetaData(imageUrl: string, name: string, description: string) {
     return {
       name,
@@ -137,14 +122,20 @@ export const NFTMintingForm: React.FC<NFTMintingFormProps> = ({ config = {} }) =
     };
   }
 
-  // Automatically update NFT URI when metadata fields change
-  useEffect(() => {
-    const { imageUrl, name, description } = metadataFields;
-    if (imageUrl && name) {
-      const metadata = createMetaData(imageUrl, name, description);
+  const handleMetadataChange = (field: keyof typeof metadataFields) => (value: string) => {
+    const updatedFields = { ...metadataFields, [field]: value };
+    setMetadataFields(updatedFields);
+
+    // Update nftURI immediately if we have the required fields
+    if (updatedFields.imageUrl && updatedFields.name) {
+      const metadata = createMetaData(
+        updatedFields.imageUrl,
+        updatedFields.name,
+        updatedFields.description
+      );
       updateValue('nftURI', metadata);
     }
-  }, [metadataFields, updateValue]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,7 +143,7 @@ export const NFTMintingForm: React.FC<NFTMintingFormProps> = ({ config = {} }) =
   };
 
   const isConnected = connectionStatus === 'Connected';
-  
+
   const isMetadataComplete = useMemo(() => {
     return Boolean(
       metadataFields.imageUrl &&
@@ -163,6 +154,18 @@ export const NFTMintingForm: React.FC<NFTMintingFormProps> = ({ config = {} }) =
   }, [metadataFields, values.nftTaxon]);
 
   const isMintEnabled = isConnected && isMetadataComplete;
+
+  const finalConfig: NFTFormConfig = {
+    ...defaultConfig,
+    ...Object.fromEntries(
+      Object.entries(config).map(([key, value]) => [
+        key,
+        typeof value === 'object'
+          ? { ...(defaultConfig[key as keyof NFTFormConfig] as object), ...(value as object) }
+          : value
+      ])
+    )
+  } as NFTFormConfig;
 
   return (
     <form onSubmit={handleSubmit} className="nft-minting-form">
@@ -239,12 +242,14 @@ export const NFTMintingForm: React.FC<NFTMintingFormProps> = ({ config = {} }) =
           className="mint-button"
           disabled={!isMintEnabled || transactionStatus === 'Processing'}
         >
-          {!isConnected 
+          {!isConnected
             ? 'Connect Wallet to Mint'
-            : !isMetadataComplete 
+            : !isMetadataComplete
               ? 'Complete Metadata to Mint'
               : 'Mint NFT'}
         </button>
+        {transactionStatus && <TransactionStatus status={transactionStatus} />}
+
       </div>
     </form>
   );

@@ -2,6 +2,13 @@ import { EasyaSDK } from '../../../../src';
 import { NFT, NFTConfig, TransactionResult } from '../../../../src/core/types';
 import { BlockchainValues } from '../components/types';
 
+export const checkWalletInstalled = async (sdk: EasyaSDK | null): Promise<boolean> => {
+    if (!sdk) {
+        return false;
+    }
+    return sdk.isWalletInstalled();
+}
+
 export const transferNFT = async (
     sdk: EasyaSDK | null, 
     tokenId: string,
@@ -56,6 +63,9 @@ export const mintNFT = async (sdk: EasyaSDK | null, values: BlockchainValues, se
 
         const nftConfig: NFTConfig = {
             URI: values.nftURI,
+            name: values.nftName,
+            description: values.nftDescription,
+            image: "values.",
             taxon: taxon,
             transferFee: transferFee,
             flags: flags

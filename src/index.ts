@@ -11,7 +11,7 @@ export class EasyaSDK {
   constructor(config: EasyaConfig) {
       this.config = {
           network: config.network || 'testnet',
-          blockchain: config.blockchain || 'xrpl',
+          blockchain: config.blockchain || 'aptos',
       };
 
       this.provider = ProviderFactory.createProvider(
@@ -71,8 +71,7 @@ export class EasyaSDK {
       // Validate transaction config
       this.validateTransactionConfig(config);
 
-      // Convert amount to drops (1 XRP = 1,000,000 drops)
-      const amountInDrops = (parseFloat(config.amount) * 1000000).toString();
+      const amountInDrops = (parseFloat(config.amount)).toString();
       const transactionConfig = {
         ...config,
         amount: amountInDrops
@@ -181,6 +180,8 @@ export class EasyaSDK {
     switch (this.config.blockchain.toLowerCase()) {
       case 'xrpl':
         return 'XRP';
+      case 'aptos': 
+        return 'APT';
       default:
         throw new Error(`Unsupported blockchain: ${this.config.blockchain}`);
     }
@@ -253,6 +254,16 @@ export class EasyaSDK {
       throw new Error(`Failed to transfer NFT: ${errorMessage}`);
     }
   }
+
+  async isWalletInstalled(): Promise<boolean> {
+    try {
+      return await this.provider.isWalletInstalled();
+    } catch (error) {
+      console.warn('Error checking wallet installation:', error);
+      return false;
+    }
+  }
+
 
   private validateTransferNFTParams(tokenId: string, to: string) {
     if (!tokenId || typeof tokenId !== 'string' || tokenId.trim() === '') {

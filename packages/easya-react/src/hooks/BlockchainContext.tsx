@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { EasyaSDK } from '../../../../src';
 import { BlockchainContextType, BlockchainValues } from '../components/types';
-import { mintNFT, sendTransaction, getBalance, getCurrencySymbol, getAddress, getNFTs, transferNFT } from './blockchainService';
+import { mintNFT, sendTransaction, getBalance, getCurrencySymbol, getAddress, getNFTs, transferNFT, checkWalletInstalled } from './blockchainService';
 import { ConnectionConfig, EasyaConfig } from '../../../../src/core/types';
 
 const BlockchainContext = createContext<BlockchainContextType | null>(null);
@@ -11,7 +11,7 @@ export const BlockchainProvider: React.FC<{
     config: EasyaConfig;
     children: React.ReactNode;
   }> = ({ config, children }) => {    const [connectionStatus, setConnectionStatus] = useState<string>('Not Connected');
-    const [sdk, setSdk] = useState<EasyaSDK | null>(null);
+    const [sdk] = useState<EasyaSDK>(new EasyaSDK(config));
     const [transactionStatus, setTransactionStatus] = useState<string>('');
     const [values, setValues] = useState<BlockchainValues>({
         recipientAddress: '',
@@ -32,12 +32,10 @@ export const BlockchainProvider: React.FC<{
     };
 
     const connectToBlockchain = async (): Promise<boolean> => {
-        const newSdk = new EasyaSDK(config);
-        setSdk(newSdk);
         setConnectionStatus('Initialized');
         try {
             setConnectionStatus('Connecting...');
-            const result = await newSdk.connect();
+            const result = await sdk.connect();
             setConnectionStatus(`Connected`);
             return true;
         } catch (error) {
@@ -58,7 +56,6 @@ export const BlockchainProvider: React.FC<{
             if (typeof sdk.disconnect === 'function') {
                 await sdk.disconnect();
             }
-            setSdk(null);
             setConnectionStatus('Not Connected');
             setTransactionStatus('');
             // Reset values to initial state
@@ -97,6 +94,7 @@ export const BlockchainProvider: React.FC<{
             getAddress: () => getAddress(sdk),
             getNFTs: () => getNFTs(sdk),
             transferNFT: (tokenId: string, to: string) => transferNFT(sdk, tokenId, to, setTransactionStatus),
+            checkWalletInstalled: () => checkWalletInstalled(sdk),
             sdk
         }}>
             {children}

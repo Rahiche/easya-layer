@@ -13,6 +13,9 @@ export interface TokenConfig {
 
 export interface NFTConfig {
   URI: string;
+  name: string;
+  description: string;
+  image: string;
   flags?: number;
   transferFee?: number;
   taxon: number;
@@ -39,7 +42,7 @@ export interface WalletInfo {
 
 export interface TransactionResult {
   hash: string;
-  //status: string;
+  status?: string;
   //confirmations?: number;
   //timestamp?: number;
   //details?: Record<string, any>;
@@ -52,6 +55,7 @@ export interface BlockchainProvider {
   connect(config?: ConnectionConfig): Promise<string>;
   disconnect(): Promise<void>;
   connectToWallet(): Promise<WalletInfo>;
+  isWalletInstalled():  Promise<boolean>;
   establishConnection(): Promise<any>;
 
   // Basic Operations

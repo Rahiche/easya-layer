@@ -30,5 +30,6 @@ export interface BlockchainContextType {
   getAddress: () => Promise<string>;
   getNFTs: () => Promise<NFT[]>;
   transferNFT: (tokenId: string, to: string) => Promise<TransactionResult>;
+  checkWalletInstalled: () => Promise<boolean>;
   sdk: EasyaSDK | null;
 }

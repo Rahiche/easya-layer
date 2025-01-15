@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@crossmarkio/sdk": "^0.4.0",
+    "aptos": "^1.21.0",
     "xrpl": "^4.1.0"
   }
 }
