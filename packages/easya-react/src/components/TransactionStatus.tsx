@@ -1,4 +1,5 @@
 import React from 'react';
+import { useBlockchain } from '../hooks/BlockchainContext';
 
 interface TransactionStatusProps {
     status: string;
@@ -9,29 +10,69 @@ export const TransactionStatus: React.FC<TransactionStatusProps> = ({
     status,
     isLoading = false
 }) => {
-    console.log(`-----`);
-    console.log(`status ${status}`);
-    console.log(`-----`);
-
-    // If there's no status and it's not loading, don't render anything
+    const { sdk } = useBlockchain();
+    
     if (!status && !isLoading) {
         return null;
     }
 
-    const hashMatch = status?.match(/Hash: ([a-fA-F0-9]+)/);
-    const hash = hashMatch ? hashMatch[1] : null;
+    // Determine blockchain and network from SDK
+    const chain: 'xrpl' | 'aptos' = sdk?.config?.blockchain?.toLowerCase() as 'xrpl' | 'aptos' || 'xrpl';
+    const isTestnet = sdk?.config?.network === 'testnet';
+
+    // XRPL-specific regex patterns
+    const xrplHashMatch = status?.match(/Hash: ([a-fA-F0-9]+)/);
+    const xrplNftMatch = status?.match(/NFT minted successfully! (.*)/);
     
-    // Extract NFT ID from successful transfer message
-    const nftMatch = status?.match(/NFT minted successfully! (.*)/);
-    const nftId = nftMatch ? nftMatch[1] : null;
+    // Aptos-specific regex patterns
+    const aptosHashMatch = status?.match(/Version: (\d+)/);
+    const aptosNftMatch = status?.match(/Token minted: (0x[a-fA-F0-9]+)/);
     
-    const explorerUrl = hash 
-        ? `https://test.xrplexplorer.com/explorer/${hash}`
-        : null;
+    // Determine which hash to use based on the chain
+    const hash = chain === 'xrpl' ? 
+        (xrplHashMatch ? xrplHashMatch[1] : null) :
+        (aptosHashMatch ? aptosHashMatch[1] : null);
+    
+    // Determine which NFT ID to use based on the chain
+    const nftId = chain === 'xrpl' ?
+        (xrplNftMatch ? xrplNftMatch[1] : null) :
+        (aptosNftMatch ? aptosNftMatch[1] : null);
+    
+    // Define explorer base URLs with network awareness
+    const explorerUrls = {
+        xrpl: {
+            testnet: {
+                transaction: 'https://test.xrplexplorer.com/explorer/',
+                nft: 'https://test.xrplexplorer.com/en/nft/'
+            },
+            mainnet: {
+                transaction: 'https://xrplexplorer.com/explorer/',
+                nft: 'https://xrplexplorer.com/en/nft/'
+            }
+        },
+        aptos: {
+            testnet: {
+                transaction: 'https://explorer.aptoslabs.com/txn/',
+                nft: 'https://explorer.aptoslabs.com/token/'
+            },
+            mainnet: {
+                transaction: 'https://explorer.aptoslabs.com/txn/',
+                nft: 'https://explorer.aptoslabs.com/token/'
+            }
+        }
+    };
+    
+    // Get correct network type
+    const network = isTestnet ? 'testnet' : 'mainnet';
+    
+    // Construct appropriate explorer URLs based on chain and network
+    const explorerUrl = hash ? 
+        `${explorerUrls[chain][network].transaction}${hash}` : 
+        null;
         
-    const nftExplorerUrl = nftId 
-        ? `https://test.xrplexplorer.com/en/nft/${nftId}`
-        : null;
+    const nftExplorerUrl = nftId ? 
+        `${explorerUrls[chain][network].nft}${nftId}` : 
+        null;
 
     return (
         <div className="transaction-status-container">
@@ -39,7 +80,7 @@ export const TransactionStatus: React.FC<TransactionStatusProps> = ({
                 {isLoading ? (
                     <div className="status-message loading">
                         <div className="loading-spinner" />
-                        <span>Processing transaction...</span>
+                        <span>Processing {chain.toUpperCase()} transaction on {network}...</span>
                     </div>
                 ) : (
                     <div className="status-links">
@@ -51,7 +92,7 @@ export const TransactionStatus: React.FC<TransactionStatusProps> = ({
                                     rel="noopener noreferrer"
                                     className="explorer-link"
                                 >
-                                    <span>View on XRPL Explorer</span>
+                                    <span>View on {chain.toUpperCase()} Explorer ({network})</span>
                                     <svg
                                         className="explorer-icon"
                                         xmlns="http://www.w3.org/2000/svg"
@@ -77,7 +118,7 @@ export const TransactionStatus: React.FC<TransactionStatusProps> = ({
                                     rel="noopener noreferrer"
                                     className="explorer-link"
                                 >
-                                    <span>View NFT on Explorer</span>
+                                    <span>View NFT on {chain.toUpperCase()} Explorer ({network})</span>
                                     <svg
                                         className="explorer-icon"
                                         xmlns="http://www.w3.org/2000/svg"

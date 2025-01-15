@@ -63,8 +63,8 @@ export const mintNFT = async (sdk: EasyaSDK | null, values: BlockchainValues, se
 
         const nftConfig: NFTConfig = {
             URI: values.nftURI,
-            name: values.nftName,
-            description: values.nftDescription,
+            name: "values.nftName",
+            description: "values.nftDescription",
             image: "values.",
             taxon: taxon,
             transferFee: transferFee,

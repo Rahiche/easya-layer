@@ -13,6 +13,8 @@ const NFTGallery: React.FC<NFTGalleryProps> = ({ className = '' }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+
+
   useEffect(() => {
     const fetchNFTs = async () => {
       if (connectionStatus !== 'Connected') return;
@@ -129,6 +131,18 @@ const NFTGallery: React.FC<NFTGalleryProps> = ({ className = '' }) => {
       <path d="M14 13H6" />
     </svg>
   );
+
+  // If chain is not XRPL, render a message
+  if (sdk?.config.blockchain !== 'xrpl') {
+    return (
+      <div className="p-4 text-center">
+        <h2 className="text-xl font-semibold mb-4">NFT Gallery</h2>
+        <p className="text-gray-600">
+          NFT Gallery is currently only supported on XRPL.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className={`nft-gallery ${className}`}>

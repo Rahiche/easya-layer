@@ -3,20 +3,21 @@ import { useBlockchain } from '../hooks/BlockchainContext';
 import { TransactionStatus } from './TransactionStatus';
 
 const TransactionForm: React.FC = () => {
-    const { 
-        values, 
-        updateValue, 
+    const {
+        values,
+        updateValue,
         sendTransaction,
         connectionStatus,
         transactionStatus,
         getBalance,
-        getCurrencySymbol
+        getCurrencySymbol,
+        sdk
     } = useBlockchain();
 
     const [balance, setBalance] = useState<string>('0');
     const [currencySymbol, setCurrencySymbol] = useState<string>('');
     const [error, setError] = useState<string>('');
-    
+
     const isConnected = connectionStatus?.toLowerCase().includes('connected');
 
     useEffect(() => {
@@ -34,20 +35,31 @@ const TransactionForm: React.FC = () => {
                 }
             }
         };
-        
+
         initializeData();
     }, [isConnected, getBalance, getCurrencySymbol]);
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const amount = e.target.value;
         updateValue('transactionAmount', amount);
-        
+
         if (parseFloat(amount) > parseFloat(balance)) {
             setError(`Insufficient balance. You have ${balance} ${currencySymbol} available.`);
         } else {
             setError('');
         }
     };
+    
+    if (!sdk) {
+        return (
+            <div className="p-4 text-center">
+                <h2 className="text-xl font-semibold mb-4">Not Supported</h2>
+                <p className="text-gray-600">
+                    Currently, this feature is not supported.
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="transaction-form-container">

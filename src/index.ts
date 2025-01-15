@@ -3,7 +3,7 @@ import { BlockchainProvider } from './core/types';
 import { ProviderFactory } from './providers/provider.factory';
 
 export class EasyaSDK {
-  private config: EasyaConfig;
+  public config: EasyaConfig;
   public provider: BlockchainProvider;
   private isConnected: boolean = false;
   public currentAddress: string | null = null;

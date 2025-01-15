@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
 import TransactionStatus from './TransactionStatus';
 
@@ -106,7 +106,20 @@ export const NFTMintingForm: React.FC<NFTMintingFormProps> = ({ config = {} }) =
     mintNFT,
     connectionStatus,
     transactionStatus,
+    sdk
   } = useBlockchain();
+
+  // If chain is not XRPL, render a message
+  if (sdk?.config.blockchain !== 'xrpl') {
+    return (
+      <div className="p-4 text-center">
+        <h2 className="text-xl font-semibold mb-4">NFT Minting</h2>
+        <p className="text-gray-600">
+          NFT minting is currently only supported on XRPL.
+        </p>
+      </div>
+    );
+  }
 
   const [metadataFields, setMetadataFields] = useState({
     imageUrl: '',
@@ -126,7 +139,6 @@ export const NFTMintingForm: React.FC<NFTMintingFormProps> = ({ config = {} }) =
     const updatedFields = { ...metadataFields, [field]: value };
     setMetadataFields(updatedFields);
 
-    // Update nftURI immediately if we have the required fields
     if (updatedFields.imageUrl && updatedFields.name) {
       const metadata = createMetaData(
         updatedFields.imageUrl,
@@ -249,7 +261,6 @@ export const NFTMintingForm: React.FC<NFTMintingFormProps> = ({ config = {} }) =
               : 'Mint NFT'}
         </button>
         {transactionStatus && <TransactionStatus status={transactionStatus} />}
-
       </div>
     </form>
   );
