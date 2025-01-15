@@ -21,7 +21,6 @@ const App: React.FC = () => {
                                         <EasyaSDK.BalanceDisplay />
                                         <EasyaSDK.AddressDisplay />
                                         <EasyaSDK.NFTMintingForm />
-                                        <EasyaSDK.NFTTransferForm />
                                         <EasyaSDK.NFTGallery />
                                         <EasyaSDK.TransactionForm />
                                     </div>
