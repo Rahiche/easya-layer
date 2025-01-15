@@ -1,0 +1,105 @@
+.nft-transfer-form {
+    padding: var(--easya-spacing-lg);
+    background-color: var(--easya-background);
+    border-radius: var(--easya-radius-md);
+    max-width: 100%;
+}
+
+.form-title {
+    font-size: var(--easya-font-size-2xl);
+    font-weight: var(--easya-font-weight-bold);
+    color: var(--easya-text);
+    margin-bottom: var(--easya-spacing-lg);
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--easya-spacing-md);
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--easya-spacing-xs);
+}
+
+.form-label {
+    font-size: var(--easya-font-size-sm);
+    font-weight: var(--easya-font-weight-medium);
+    color: var(--easya-text-secondary);
+}
+
+.form-input {
+    width: 100%;
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    border: 1px solid var(--easya-border);
+    border-radius: var(--easya-radius-base);
+    font-size: var(--easya-font-size-sm);
+    transition: all var(--easya-transition-base);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--easya-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.form-input:disabled {
+    background-color: var(--easya-background-tertiary);
+    cursor: not-allowed;
+}
+
+.form-input::placeholder {
+    color: var(--easya-text-tertiary);
+}
+
+.error-message {
+    color: var(--easya-error);
+    font-size: var(--easya-font-size-sm);
+    margin-top: var(--easya-spacing-sm);
+}
+
+.transfer-button {
+    width: 100%;
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    background-color: var(--easya-primary);
+    color: var(--easya-text);
+    border: none;
+    border-radius: var(--easya-radius-base);
+    font-weight: var(--easya-font-weight-medium);
+    cursor: pointer;
+    transition: background-color var(--easya-transition-base);
+}
+
+.transfer-button:hover:not(:disabled) {
+    background-color: var(--easya-primary-hover);
+}
+
+.transfer-button:disabled {
+    background-color: var(--easya-text-tertiary);
+    cursor: not-allowed;
+}
+
+/* Animation classes */
+.nft-transfer-form-enter {
+    opacity: 0;
+    transform: translateY(var(--easya-spacing-sm));
+}
+
+.nft-transfer-form-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity var(--easya-transition-slow), transform var(--easya-transition-slow);
+}
+
+/* Focus styles */
+:focus {
+    outline: none;
+}
+
+/* Custom transitions */
+.form-input,
+.transfer-button {
+    transition: all var(--easya-transition-base);
+}

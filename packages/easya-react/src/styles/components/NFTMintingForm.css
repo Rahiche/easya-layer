@@ -1,0 +1,114 @@
+.nft-minting-form {
+    padding: var(--easya-spacing-lg);
+    background-color: var(--easya-background);
+    border-radius: var(--easya-radius-lg);
+}
+
+.nft-minting-form h2 {
+    font-size: var(--easya-font-size-2xl);
+    font-weight: var(--easya-font-weight-bold);
+    margin-bottom: var(--easya-spacing-lg);
+    color: var(--easya-text);
+}
+
+.nft-minting-form-section {
+    margin-bottom: var(--easya-spacing-2xl);
+}
+
+.nft-minting-form-section h3 {
+    font-size: var(--easya-font-size-xl);
+    font-weight: var(--easya-font-weight-semibold);
+    margin-bottom: var(--easya-spacing-md);
+    color: var(--easya-text-secondary);
+}
+
+.form-field-container {
+    margin-bottom: var(--easya-spacing-md);
+}
+
+.form-field-label {
+    display: block;
+    margin-bottom: var(--easya-spacing-sm);
+    font-size: var(--easya-font-size-sm);
+    font-weight: var(--easya-font-weight-medium);
+    color: var(--easya-text-secondary);
+}
+
+.form-field-required {
+    color: var(--easya-error);
+    margin-left: var(--easya-spacing-xs);
+}
+
+.form-field-input {
+    width: 100%;
+    padding: var(--easya-spacing-sm);
+    border: 1px solid var(--easya-border);
+    border-radius: var(--easya-radius-base);
+    background-color: var(--easya-background-secondary);
+    color: var(--easya-text);
+    transition: var(--easya-transition-base);
+}
+
+.form-field-input:focus {
+    border-color: var(--easya-border-focus);
+    box-shadow: 0 0 0 1px var(--easya-border-focus);
+}
+
+.form-field-input::placeholder {
+    color: var(--easya-text-tertiary);
+}
+
+.metadata-generator {
+    padding: var(--easya-spacing-md);
+    background-color: var(--easya-background-secondary);
+    border-radius: var(--easya-radius-lg);
+    margin-bottom: var(--easya-spacing-lg);
+}
+
+.generate-button {
+    margin-top: var(--easya-spacing-md);
+    width: 100%;
+    background-color: var(--easya-primary);
+    color: var(--easya-text);
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    border-radius: var(--easya-radius-base);
+    transition: var(--easya-transition-base);
+}
+
+.generate-button:hover {
+    background-color: var(--easya-primary-hover);
+}
+
+.generate-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--easya-border-focus);
+}
+
+.generate-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.mint-button {
+    width: 100%;
+    background-color: var(--easya-success);
+    color: var(--easya-text);
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    border-radius: var(--easya-radius-base);
+    margin-top: var(--easya-spacing-lg);
+    transition: var(--easya-transition-base);
+}
+
+.mint-button:hover {
+    background-color: var(--easya-success-hover);
+}
+
+.mint-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--easya-success-light);
+}
+
+.mint-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
