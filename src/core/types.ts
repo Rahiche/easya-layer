@@ -1,7 +1,12 @@
+export type BlockchainNetwork = 'mainnet' | 'testnet';
+
+export type BlockchainPlatform =
+  | 'xrpl'
+  | 'aptos';
+
 export interface EasyaConfig {
-  network: 'mainnet' | 'testnet';
-  blockchain: string;
-  provider?: string;
+  network: BlockchainNetwork;
+  blockchain: BlockchainPlatform;
 }
 
 export interface TokenConfig {
@@ -51,12 +56,12 @@ export interface TransactionResult {
 
 export interface BlockchainProvider {
   utils: any;
-  
+
   // Connection Management
   connect(config?: ConnectionConfig): Promise<string>;
   disconnect(): Promise<void>;
   connectToWallet(): Promise<WalletInfo>;
-  isWalletInstalled():  Promise<boolean>;
+  isWalletInstalled(): Promise<boolean>;
   establishConnection(): Promise<any>;
 
   // Basic Operations
