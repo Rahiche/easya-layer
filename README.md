@@ -30,7 +30,7 @@ git clone https://github.com/Rahiche/easya-layer.git
 Navigate to the project directory:
 
 ```bash
-cd easya-sdk-starter
+cd easya-layer/easya-sdk-sample
 ```
 
 Install dependencies:
