@@ -24,7 +24,7 @@ Before you begin, ensure you have the following installed:
 Clone the repository:
 
 ```bash
-git clone [repository-url]
+git clone https://github.com/Rahiche/easya-layer.git
 ```
 
 Navigate to the project directory:
