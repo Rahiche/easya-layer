@@ -1,0 +1,82 @@
+.nft-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--easya-spacing-md);
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--easya-spacing-sm);
+}
+
+.nft-input,
+.nft-textarea {
+    width: 100%;
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    border: 1px solid var(--easya-border);
+    border-radius: var(--easya-radius-sm);
+    transition: all var(--easya-transition-base);
+}
+
+.nft-input:focus,
+.nft-textarea:focus {
+    outline: none;
+    border-color: var(--easya-border-focus);
+    box-shadow: 0 0 0 2px var(--easya-primary-light);
+}
+
+.nft-input:disabled,
+.nft-textarea:disabled {
+    background-color: var(--easya-background-secondary);
+    cursor: not-allowed;
+}
+
+.nft-textarea {
+    height: calc(var(--easya-spacing-md) * 6);
+    resize: vertical;
+}
+
+.mint-button {
+    width: 100%;
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    color: var(--easya-text);
+    border: none;
+    border-radius: var(--easya-radius-sm);
+    transition: background-color var(--easya-transition-base);
+    cursor: pointer;
+}
+
+.mint-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.button-disconnected {
+    background-color: var(--easya-text-tertiary);
+}
+
+.button-disconnected:hover:not(:disabled) {
+    background-color: var(--easya-text-disabled);
+}
+
+.button-minting {
+    background-color: var(--easya-warning);
+}
+
+.button-minting:hover:not(:disabled) {
+    background-color: var(--easya-warning-hover);
+}
+
+.button-ready {
+    background-color: var(--easya-primary);
+}
+
+.button-ready:hover:not(:disabled) {
+    background-color: var(--easya-primary-hover);
+}
+
+.status-text {
+    font-size: var(--easya-font-size-sm);
+    color: var(--easya-text-tertiary);
+}

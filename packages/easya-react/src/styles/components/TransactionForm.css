@@ -1,0 +1,84 @@
+.transaction-form-container {
+    padding: var(--easya-spacing-md);
+    background-color: var(--easya-background);
+    border-radius: var(--easya-radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--easya-spacing-sm);
+}
+
+.transaction-input {
+    width: 100%;
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    background-color: var(--easya-background-secondary);
+    border: 1px solid var(--easya-border);
+    border-radius: var(--easya-radius-base);
+    color: var(--easya-text);
+    /* Increase right padding to make room for currency symbol */
+    padding-right: calc(var(--easya-spacing-xl) + var(--easya-spacing-xl));
+}
+
+.transaction-input::placeholder {
+    color: var(--easya-text-tertiary);
+}
+
+.transaction-input:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px var(--easya-primary);
+}
+
+.transaction-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.transaction-button {
+    width: 100%;
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    background-color: var(--easya-success);
+    color: var(--easya-text);
+    border-radius: var(--easya-radius-base);
+    transition: background-color var(--easya-transition-base);
+}
+
+.transaction-button:hover {
+    background-color: var(--easya-success-hover);
+}
+
+.transaction-button:focus {
+    outline: none;
+}
+
+.transaction-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.balance-display {
+    color: var(--easya-text);
+    font-weight: var(--easya-font-weight-medium);
+    margin-bottom: var(--easya-spacing-md);
+}
+
+.amount-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.currency-symbol {
+    position: absolute;
+    right: var(--easya-spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--easya-text-tertiary);
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+}
+
+.error-message {
+    color: var(--easya-error);
+    font-size: var(--easya-font-size-sm);
+    margin-top: var(--easya-spacing-sm);
+}

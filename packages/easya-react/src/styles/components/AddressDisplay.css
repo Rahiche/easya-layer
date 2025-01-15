@@ -1,0 +1,87 @@
+.easya-address-display {
+    width: 100%;
+    border: 1px solid var(--easya-border);
+    border-radius: var(--easya-radius-md);
+    padding: var(--easya-spacing-md);
+    background-color: var(--easya-surface);
+    color: var(--easya-text);
+}
+
+.easya-address-display__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--easya-spacing-sm);
+}
+
+.easya-address-display__title {
+    font-size: var(--easya-font-size-sm);
+    font-weight: var(--easya-font-weight-medium);
+    color: var(--easya-text-secondary);
+    margin: 0;
+}
+
+.easya-address-display__info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--easya-spacing-md);
+}
+
+.easya-address-display__value {
+    font-family: monospace;
+    font-size: var(--easya-font-size-base);
+    color: var(--easya-text);
+}
+
+.easya-address-display__value--disconnected {
+    opacity: 0.7;
+}
+
+.easya-address-display__value--loading {
+    animation: easya-pulse var(--easya-transition-slow) infinite ease-in-out;
+}
+
+.easya-address-display__actions {
+    display: flex;
+    gap: var(--easya-spacing-sm);
+}
+
+.easya-address-display__copy,
+.easya-address-display__refresh {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    font-size: var(--easya-font-size-sm);
+    font-weight: var(--easya-font-weight-medium);
+    border-radius: var(--easya-radius-base);
+    border: 1px solid var(--easya-border);
+    background-color: var(--easya-background-tertiary);
+    color: var(--easya-text);
+    cursor: pointer;
+    transition: all var(--easya-transition-base);
+}
+
+.easya-address-display__copy:hover:not(:disabled),
+.easya-address-display__refresh:hover:not(:disabled) {
+    background-color: var(--easya-surface-hover);
+    border-color: var(--easya-border-hover);
+}
+
+.easya-address-display__copy:focus,
+.easya-address-display__refresh:focus {
+    outline: 2px solid var(--easya-border-focus);
+    outline-offset: 2px;
+}
+
+.easya-address-display__copy:disabled,
+.easya-address-display__refresh:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.easya-address-display__error {
+    margin: var(--easya-spacing-sm) 0 0;
+    font-size: var(--easya-font-size-sm);
+    color: var(--easya-error);
+}

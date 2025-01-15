@@ -1,0 +1,90 @@
+.easya-balance-display {
+  width: 100%;
+  border: 1px solid var(--easya-border);
+  border-radius: var(--easya-radius-md);
+  padding: var(--easya-spacing-md);
+  background-color: var(--easya-surface);
+  color: var(--easya-text);
+}
+
+.easya-balance-display__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--easya-spacing-sm);
+}
+
+.easya-balance-display__title {
+  font-size: var(--easya-font-size-lg);
+  font-weight: var(--easya-font-weight-medium);
+  color: var(--easya-text-secondary);
+  margin: 0;
+}
+
+.easya-balance-display__info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--easya-spacing-md);
+}
+
+.easya-balance-display__value {
+  font-size: var(--easya-font-size-2xl);
+  font-weight: var(--easya-font-weight-bold);
+  color: var(--easya-text);
+}
+
+.easya-balance-display__value--disconnected {
+  opacity: 0.7;
+}
+
+.easya-balance-display__value--loading {
+  animation: easya-pulse var(--easya-transition-slow) infinite ease-in-out;
+}
+
+.easya-balance-display__refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+  font-size: var(--easya-font-size-sm);
+  font-weight: var(--easya-font-weight-medium);
+  border-radius: var(--easya-radius-base);
+  border: 1px solid var(--easya-border);
+  background-color: var(--easya-background-tertiary);
+  color: var(--easya-text);
+  cursor: pointer;
+  transition: all var(--easya-transition-base);
+}
+
+.easya-balance-display__refresh:hover:not(:disabled) {
+  background-color: var(--easya-surface-hover);
+  border-color: var(--easya-border-hover);
+}
+
+.easya-balance-display__refresh:focus {
+  outline: 2px solid var(--easya-border-focus);
+  outline-offset: 2px;
+}
+
+.easya-balance-display__refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.easya-balance-display__error {
+  margin: var(--easya-spacing-sm) 0 0;
+  font-size: var(--easya-font-size-sm);
+  color: var(--easya-error);
+}
+
+@keyframes easya-pulse {
+  0% {
+      opacity: 1;
+  }
+  50% {
+      opacity: 0.5;
+  }
+  100% {
+      opacity: 1;
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "easya-react",
+  "version": "0.1.0",
+  "private": false,
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --inject src/styles/inject.js",
+    "dev": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --watch --inject src/styles/inject.js",
+    "lint": "eslint src/**/*.ts*",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "easya-sdk": "../easya-sdk"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.0",
+    "react": "^18.0.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31"
+  }
+}

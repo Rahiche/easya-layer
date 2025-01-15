@@ -1,0 +1,56 @@
+.connect-button-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--easya-spacing-sm);
+}
+
+.connect-button {
+    width: 100%;
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    color: var(--easya-text);
+    border-radius: var(--easya-radius-sm);
+    transition: background-color var(--easya-transition-base);
+    border: none; /* Add this line to remove the border */
+}
+
+.connect-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.button-connect {
+    background-color: var(--easya-success);
+}
+
+.button-connect:hover:not(:disabled) {
+    background-color: var(--easya-success-hover);
+}
+
+.button-disconnected {
+    background-color: var(--easya-error);
+}
+
+.button-disconnected:hover:not(:disabled) {
+    background-color: var(--easya-error-hover);
+}
+
+.button-connecting {
+    background-color: var(--easya-warning);
+}
+
+.button-connecting:hover:not(:disabled) {
+    background-color: var(--easya-warning-hover);
+}
+
+.button-disconnecting {
+    background-color: var(--easya-background-tertiary);
+}
+
+.button-disconnecting:hover:not(:disabled) {
+    background-color: var(--easya-surface-hover);
+}
+
+.status-text {
+    font-size: var(--easya-font-size-sm);
+    color: var(--easya-text-tertiary);
+}
