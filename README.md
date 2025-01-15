@@ -51,8 +51,8 @@ Here's how to create a basic implementation using EasyaSDK. This allows you to c
 
 ```tsx
 import React from 'react';
-import * as EasyaSDK from '@easya/react';
-import { EasyaConfig } from '@easya/core/types';
+import * as EasyaSDK from '../../packages/easya-react/src';
+import { EasyaConfig } from '../../src/core/types';
 
 const blockchainConfig: EasyaConfig = {
     network: 'testnet',
