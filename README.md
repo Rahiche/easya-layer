@@ -30,7 +30,7 @@ git clone https://github.com/Rahiche/easya-layer.git
 Navigate to the project directory and Install dependencies::
 
 ```bash
-cd easya-layer && npm install && cd packages/easya-react && npm install && cd ../.. && cd easya-sdk-sample && npm install
+cd easya-layer && npm install && cd packages/easya-react && npm install && cd ../.. && cd easya-sdk-starter && npm install
 ```
 
 Start the development server:
