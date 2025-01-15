@@ -14,26 +14,22 @@ npm install @easya/react
 Here's a minimal example showing how to integrate the EasyA SDK with a connect button:
 
 ```tsx
-import React from 'react';
-import * as EasyaSDK from '@easya/react';
-
-// Configure the blockchain settings
-const blockchainConfig = {
-    network: 'testnet',
-    blockchain: 'xrpl',
-};
-
 const App = () => {
     return (
         <EasyaSDK.BlockchainProvider config={blockchainConfig}>
-            <div>
+            <div style={{ 
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center'
+            }}>
                 <h1>My Web3 App</h1>
                 <EasyaSDK.ConnectButton />
             </div>
         </EasyaSDK.BlockchainProvider>
     );
 };
-
-export default App;
 ```
 
