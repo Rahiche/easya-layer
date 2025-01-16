@@ -1,7 +1,6 @@
-import { AptosClient, AptosAccount, TokenClient, CoinClient, FaucetClient } from "aptos";
-import { Types } from "aptos";
-import { Account, Aptos, AptosConfig, Network, NetworkToNetworkName } from '@aptos-labs/ts-sdk';
-import { BlockchainProvider } from "../../core/types";
+import { AptosClient } from "aptos";
+import { Aptos, AptosConfig, NetworkToNetworkName } from '@aptos-labs/ts-sdk';
+import { BlockchainProvider, NFT, NFTConfig, TokenConfig, TransactionConfig, TransactionResult, WalletInfo } from "../../core/types";
 
 export interface AptosUtils {
     stringToHex(str: string): string;
@@ -263,7 +262,7 @@ export class AptosProvider implements AptosBlockchainProvider {
             // Mint token
             console.log('Creating token with name:', tokenName);
             const mintTokenTransaction = await this.aptos.mintDigitalAssetTransaction({
-                creator: this.wallet, 
+                creator: this.wallet,
                 collection: "MyCollection",
                 description: "This is a digital asset.",
                 name: "MyDigitalAsset",
