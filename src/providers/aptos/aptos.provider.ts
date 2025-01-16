@@ -1,7 +1,7 @@
 import { AptosClient, AptosAccount, TokenClient, CoinClient, FaucetClient } from "aptos";
-import { BlockchainProvider, NFT, NFTConfig, TokenConfig, TransactionConfig, TransactionResult, WalletInfo } from "../core/types";
 import { Types } from "aptos";
 import { Account, Aptos, AptosConfig, Network, NetworkToNetworkName } from '@aptos-labs/ts-sdk';
+import { BlockchainProvider } from "../../core/types";
 
 export interface AptosUtils {
     stringToHex(str: string): string;
