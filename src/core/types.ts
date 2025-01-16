@@ -4,9 +4,15 @@ export type BlockchainPlatform =
   | 'xrpl'
   | 'aptos';
 
+
+  export type SupportedWallet =
+  | 'crossmark'
+  | 'gem';
+
 export interface EasyaConfig {
   network: BlockchainNetwork;
   blockchain: BlockchainPlatform;
+  wallet: SupportedWallet;
 }
 
 export interface TokenConfig {
@@ -132,3 +138,13 @@ export interface NFT {
   owner: string;
   price?: string;
 }
+
+export interface WalletAdapter {
+  isInstalled(): Promise<boolean>;
+  connect(): Promise<WalletInfo>;
+  sign(message: string): Promise<string>;
+  signAndSubmit(transaction: any): Promise<any>;
+  disconnect(): Promise<void>;
+}
+
+

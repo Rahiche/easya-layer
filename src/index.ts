@@ -10,13 +10,15 @@ export class EasyaSDK {
 
   constructor(config: EasyaConfig) {
       this.config = {
-          network: config.network || 'testnet',
-          blockchain: config.blockchain || 'aptos',
+          network: config.network,
+          blockchain: config.blockchain,
+          wallet: config.wallet,
       };
 
       this.provider = ProviderFactory.createProvider(
           this.config.blockchain,
           this.config.network,
+          this.config.wallet,
       );
   }
 
