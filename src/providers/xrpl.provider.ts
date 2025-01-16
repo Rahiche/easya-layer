@@ -212,12 +212,28 @@ export class XRPLProvider implements XRPLBlockchainProvider {
             const prepared = await this.connection.autofill(nftMint);
             const response = await this.walletAdapter.signAndSubmit(prepared);
 
-            const meta = response.result.meta;
-            const nftID = typeof meta === 'object' && 'nftoken_id' in meta ? meta.nftoken_id : undefined;
+            console.log('NFT mint response:', response);
+
+            let nftID = typeof response.result.meta === 'object' && 'nftoken_id' in response.result.meta
+                ? response.result.meta.nftoken_id
+                : undefined;
+
+            // If nftID is not in the metadata, fetch it from the transaction details
+            if (!nftID || nftID == undefined || nftID == null) {
+                const txResponse = await this.connection.request({
+                    command: 'tx',
+                    transaction: response.result.hash
+                });
+
+                console.log('Transaction response:', txResponse);
+                if (typeof txResponse.result?.meta === 'object' && 'nftoken_id' in txResponse.result.meta) {
+                    nftID = txResponse.result.meta.nftoken_id;
+                }
+            }
 
             return {
                 hash: response.result.hash,
-                nftID: `${nftID}`,
+                nftID: nftID ? `${nftID}` : undefined,
             };
         } catch (error) {
             throw new Error(`NFT minting failed: ${error}`);
