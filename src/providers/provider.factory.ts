@@ -1,6 +1,6 @@
 
 import { BlockchainProvider } from '../core/types';
-import { XRPLProvider } from '../providers/xrpl.provider';
+import { XRPLProvider } from './xrpl/xrpl.provider';
 import { AptosProvider } from './aptos.provider';
 
 export class ProviderFactory {

@@ -1,15 +1,11 @@
-import { BlockchainProvider, NFT, NFTConfig, TokenConfig, TransactionConfig, TransactionResult, WalletAdapter, WalletInfo } from "../core/types";
+import { BlockchainProvider, NFT, NFTConfig, TokenConfig, TransactionConfig, TransactionResult, WalletAdapter, WalletInfo } from "../../core/types";
 import { AccountSet, Client, NFTokenCreateOffer, NFTokenMint, Payment, TrustSet, dropsToXrp, xrpToDrops } from "xrpl";
-import { WalletAdapterRegistry } from "../wallets/WalletAdapterRegistry";
-import { CrossmarkAdapter } from "../wallets/CrossmarkAdapter";
-import { GemWalletAdapter } from "../wallets/GemWalletAdapter";
+import { WalletAdapterRegistry } from "../../wallets/WalletAdapterRegistry";
+import { CrossmarkAdapter } from "../../wallets/CrossmarkAdapter";
+import { GemWalletAdapter } from "../../wallets/GemWalletAdapter";
+import { xrplUtils, XRPLUtils } from "./XRPLUtils";
 
-export interface XRPLUtils {
-    stringToHex(str: string): string;
-    hexToString(hex: string): string;
-    dropsToXRP(drops: string): string;
-    xrpToDrops(xrp: string): string;
-}
+
 
 export interface XRPLBlockchainProvider extends BlockchainProvider {
     utils: XRPLUtils;
@@ -45,28 +41,7 @@ export class XRPLProvider implements XRPLBlockchainProvider {
         throw new Error("Method not implemented.");
     }
 
-    public utils: XRPLUtils = {
-        stringToHex: (str: string): string => {
-            return Array.from(new TextEncoder().encode(str))
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
-        },
-
-        hexToString: (hex: string): string => {
-            const bytes = new Uint8Array(
-                hex.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16)) || []
-            );
-            return new TextDecoder().decode(bytes);
-        },
-
-        dropsToXRP: (drops: string): string => {
-            return dropsToXrp(drops).toString();
-        },
-
-        xrpToDrops: (xrp: string): string => {
-            return xrpToDrops(xrp);
-        }
-    };
+    public utils = xrplUtils;
 
     async isWalletInstalled(): Promise<boolean> {
         const maxRetries = 3;
