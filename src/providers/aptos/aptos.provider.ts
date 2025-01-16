@@ -112,11 +112,6 @@ export class AptosProvider implements AptosBlockchainProvider {
         return '0';
     }
 
-    async getNFTBalance(address?: string): Promise<Array<string>> {
-        // Return an empty array as default
-        return [];
-    }
-
     async getNFTMetadata(tokenId: string): Promise<Record<string, any>> {
         // Return default metadata
         return {
@@ -167,11 +162,6 @@ export class AptosProvider implements AptosBlockchainProvider {
     // Keep existing implemented methods unchanged
     async isWalletInstalled(): Promise<boolean> {
         return !!(window as any).aptos;
-    }
-
-    async connectToWallet(): Promise<WalletInfo> {
-        const address = await this.connect();
-        return this.getWalletInfo();
     }
 
     async connect(): Promise<string> {

@@ -31,15 +31,7 @@ export class XRPLProvider implements XRPLBlockchainProvider {
         this.walletAdapter = registry.getAdapter(walletName);
     }
 
-    connectToWallet(): Promise<WalletInfo> {
-        throw new Error("Method not implemented.");
-    }
-    transferToken(config: TransactionConfig): Promise<TransactionResult> {
-        throw new Error("Method not implemented.");
-    }
-    getNetwork(): string {
-        throw new Error("Method not implemented.");
-    }
+
 
     public utils = xrplUtils;
 
@@ -345,9 +337,26 @@ export class XRPLProvider implements XRPLBlockchainProvider {
         }
     }
 
-    // Implement remaining interface methods
-    getTransactionStatus(hash: string): Promise<TransactionResult> {
-        throw new Error("Method not implemented.");
+    async getTransactionStatus(hash: string): Promise<TransactionResult> {
+        try {
+            if (!this.connection || !this.connection.isConnected()) {
+                throw new Error('Not connected to XRPL');
+            }
+
+            const response = await this.connection.request({
+                command: 'tx',
+                transaction: hash
+            });
+
+            return {
+                hash: response.result.hash,
+                status: response.result.validated ? 'confirmed' : 'pending',
+                // timestamp: response.result.date,
+                // blockNumber: response.result.ledger_index
+            };
+        } catch (error) {
+            throw new Error(`Failed to get transaction status: ${error}`);
+        }
     }
 
     async getWalletInfo(): Promise<WalletInfo> {
@@ -357,47 +366,193 @@ export class XRPLProvider implements XRPLBlockchainProvider {
         return this.walletInfo;
     }
 
-    estimateFee(config: TransactionConfig): Promise<string> {
-        throw new Error("Method not implemented.");
+    async estimateFee(config: TransactionConfig): Promise<string> {
+        try {
+            if (!this.connection || !this.connection.isConnected()) {
+                throw new Error('Not connected to XRPL');
+            }
+
+            const response = await this.connection.request({
+                command: 'fee'
+            });
+
+            // Convert drops to XRP and add some buffer for safety
+            const baseFee = dropsToXrp(response.result.drops.base_fee);
+            const estimatedFee = (Number(baseFee) * 1.5).toFixed(6);
+
+            return estimatedFee;
+        } catch (error) {
+            throw new Error(`Failed to estimate fee: ${error}`);
+        }
     }
 
     validateAddress(address: string): boolean {
-        throw new Error("Method not implemented.");
+        // Basic XRP address validation
+        const xrpAddressRegex = /^r[1-9A-HJ-NP-Za-km-z]{25,34}$/;
+        return xrpAddressRegex.test(address);
     }
 
-    getTokenBalance(tokenId: string, address?: string): Promise<string> {
-        throw new Error("Method not implemented.");
+
+    async getTokenBalance(tokenId: string, address?: string): Promise<string> {
+        try {
+            if (!this.connection || !this.connection.isConnected()) {
+                throw new Error('Not connected to XRPL');
+            }
+
+            const targetAddress = address || this.walletInfo?.address;
+            if (!targetAddress) {
+                throw new Error('No address provided and no wallet connected');
+            }
+
+            const response = await this.connection.request({
+                command: 'account_lines',
+                account: targetAddress
+            });
+
+            const token = response.result.lines.find((line: any) => 
+                line.currency === tokenId
+            );
+
+            return token ? token.balance : '0';
+        } catch (error) {
+            throw new Error(`Failed to get token balance: ${error}`);
+        }
     }
 
-    getNFTBalance(address?: string): Promise<Array<string>> {
-        throw new Error("Method not implemented.");
-    }
 
-    getNFTMetadata(tokenId: string): Promise<Record<string, any>> {
-        throw new Error("Method not implemented.");
+    async getNFTMetadata(tokenId: string): Promise<Record<string, any>> {
+        try {
+            if (!this.connection || !this.connection.isConnected()) {
+                throw new Error('Not connected to XRPL');
+            }
+
+            const response = await this.connection.request({
+                command: 'nft_info',
+                nft_id: tokenId
+            });
+
+            const nftInfo = response.result;
+            let metadata: Record<string, any> = {};
+
+            if (nftInfo.uri) {
+                const decodedUri = this.utils.hexToString(nftInfo.uri);
+                try {
+                    metadata = JSON.parse(decodedUri);
+                } catch {
+                    if (decodedUri.startsWith('ipfs://') || decodedUri.startsWith('http')) {
+                        metadata = await this.fetchNFTMetadata(decodedUri);
+                    }
+                }
+            }
+
+            return {
+                ...metadata,
+                tokenId,
+                owner: nftInfo.owner,
+                flags: nftInfo.flags,
+                transferFee: nftInfo.transfer_fee,
+                issuer: nftInfo.issuer,
+                nftSerial: nftInfo.nft_serial
+            };
+        } catch (error) {
+            throw new Error(`Failed to get NFT metadata: ${error}`);
+        }
     }
 
     isConnected(): boolean {
         return !!this.walletInfo && this.connection?.isConnected();
     }
 
-    getBlockHeight(): Promise<number> {
+    transferToken(config: TransactionConfig): Promise<TransactionResult> {
         throw new Error("Method not implemented.");
+    }
+
+    getNetwork(): string {
+        return this.network;
+    }
+
+    async getBlockHeight(): Promise<number> {
+        try {
+            if (!this.connection || !this.connection.isConnected()) {
+                throw new Error('Not connected to XRPL');
+            }
+
+            const response = await this.connection.request({
+                command: 'ledger',
+                ledger_index: 'validated'
+            });
+
+            return response.result.ledger.ledger_index;
+        } catch (error) {
+            throw new Error(`Failed to get block height: ${error}`);
+        }
     }
 
     async sign(message: string): Promise<string> {
         return await this.walletAdapter.sign(message);
     }
 
-    verify(message: string, signature: string, address: string): Promise<boolean> {
-        throw new Error("Method not implemented.");
+    async verify(message: string, signature: string, address: string): Promise<boolean> {
+        try {
+            // Use client.request to verify the signature
+            const response = await this.connection.request({
+                command: 'submit',
+                tx_blob: message
+            });
+
+            return response.result.engine_result === 'tesSUCCESS';
+        } catch (error) {
+            throw new Error(`Verification failed: ${error}`);
+        }
     }
 
     subscribeToEvents(eventName: string, callback: (data: any) => void): void {
-        throw new Error("Method not implemented.");
+        if (!this.connection || !this.connection.isConnected()) {
+            throw new Error('Not connected to XRPL');
+        }
+
+        switch (eventName) {
+            case 'ledger':
+                this.connection.request({
+                    command: 'subscribe',
+                    streams: ['ledger']
+                });
+                this.connection.on('ledgerClosed', callback);
+                break;
+            case 'transactions':
+                this.connection.request({
+                    command: 'subscribe',
+                    streams: ['transactions']
+                });
+                this.connection.on('transaction', callback);
+                break;
+            default:
+                throw new Error(`Unsupported event type: ${eventName}`);
+        }
     }
 
     unsubscribeFromEvents(eventName: string): void {
-        throw new Error("Method not implemented.");
+        if (!this.connection || !this.connection.isConnected()) {
+            throw new Error('Not connected to XRPL');
+        }
+
+        switch (eventName) {
+            case 'ledger':
+                this.connection.request({
+                    command: 'unsubscribe',
+                    streams: ['ledger']
+                });
+                this.connection.off('ledgerClosed');
+                break;
+            case 'transactions':
+                this.connection.request({
+                    command: 'unsubscribe',
+                    streams: ['transactions']
+                });
+                this.connection.off('transaction');
+                break;
+            default:
+                throw new Error(`Unsupported event type: ${eventName}`);
+        }
     }
 }

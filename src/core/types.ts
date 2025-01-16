@@ -66,7 +66,6 @@ export interface BlockchainProvider {
   // Connection Management
   connect(config?: ConnectionConfig): Promise<string>;
   disconnect(): Promise<void>;
-  connectToWallet(): Promise<WalletInfo>;
   isWalletInstalled(): Promise<boolean>;
   establishConnection(): Promise<any>;
 
@@ -88,7 +87,6 @@ export interface BlockchainProvider {
   // NFT Operations
   mintNFT(config: NFTConfig): Promise<TransactionResult>;
   transferNFT(tokenId: string, to: string): Promise<TransactionResult>;
-  getNFTBalance(address?: string): Promise<Array<string>>;
   getNFTMetadata(tokenId: string): Promise<Record<string, any>>;
   getNFTs(address?: string): Promise<Array<NFT>>;
 
