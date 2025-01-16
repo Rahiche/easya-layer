@@ -4,9 +4,7 @@ export class WalletAdapterRegistry {
     private static instance: WalletAdapterRegistry;
     private adapters: Map<string, WalletAdapter> = new Map();
 
-    private constructor() {
-        
-    }
+    private constructor() {}
 
     static getInstance(): WalletAdapterRegistry {
         if (!WalletAdapterRegistry.instance) {
