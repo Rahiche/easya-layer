@@ -4,7 +4,7 @@ import { EasyaConfig } from '../../src/core/types';
 
 const blockchainConfig: EasyaConfig = {
     network: 'testnet',
-    blockchain: 'aptos',
+    blockchain: 'xrpl',
 };
 
 const App: React.FC = () => {
