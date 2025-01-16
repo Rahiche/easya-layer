@@ -10,6 +10,7 @@ export { default as TransactionStatus } from './components/TransactionStatus';
 export { default as AddressDisplay } from './components/AddressDisplay';
 export { default as NFTTransferForm } from './components/NFTTransferForm';
 export { default as NFTGallery } from './components/NFTGallery';
+export { default as ConfigSelector } from './components/ConfigSelector';
 
 // You might also want to export the types
 // export * from './types';

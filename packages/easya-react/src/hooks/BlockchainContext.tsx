@@ -1,42 +1,80 @@
 // BlockchainContext.tsx
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { EasyaSDK } from '../../../../src';
 import { BlockchainContextType, BlockchainValues } from '../components/types';
-import { mintNFT, sendTransaction, getBalance, getCurrencySymbol, getAddress, getNFTs, transferNFT, checkWalletInstalled } from './blockchainService';
+import {
+    mintNFT,
+    sendTransaction,
+    getBalance,
+    getCurrencySymbol,
+    getAddress,
+    getNFTs,
+    transferNFT,
+    checkWalletInstalled
+} from './blockchainService';
 import { ConnectionConfig, EasyaConfig } from '../../../../src/core/types';
 
 const BlockchainContext = createContext<BlockchainContextType | null>(null);
 
+const initialValues: BlockchainValues = {
+    recipientAddress: '',
+    transactionAmount: '',
+    tokenName: '',
+    tokenSymbol: '',
+    tokenSupply: '',
+    nftName: '',
+    nftDescription: '',
+    nftURI: null,
+    nftTaxon: '0',
+    nftTransferFee: '0',
+    nftFlags: '0'
+};
+
 export const BlockchainProvider: React.FC<{
     config: EasyaConfig;
-    children: React.ReactNode;
-  }> = ({ config, children }) => {    const [connectionStatus, setConnectionStatus] = useState<string>('Not Connected');
-    const [sdk] = useState<EasyaSDK>(new EasyaSDK(config));
+    children: ReactNode;
+}> = ({ config, children }) => {
+    const [connectionStatus, setConnectionStatus] = useState<string>('Not Connected');
+    const [sdk, setSdk] = useState<EasyaSDK>(() => new EasyaSDK(config));
     const [transactionStatus, setTransactionStatus] = useState<string>('');
-    const [values, setValues] = useState<BlockchainValues>({
-        recipientAddress: '',
-        transactionAmount: '',
-        tokenName: '',
-        tokenSymbol: '',
-        tokenSupply: '',
-        nftName: '',
-        nftDescription: '',
-        nftURI: null,
-        nftTaxon: '0',
-        nftTransferFee: '0',
-        nftFlags: '0'
-    });
+    const [values, setValues] = useState<BlockchainValues>(initialValues);
+
+    // Reset state and recreate SDK when config changes
+    useEffect(() => {
+        // Clean up previous connection if exists
+        const cleanup = async () => {
+            if (sdk && typeof sdk.disconnect === 'function') {
+                try {
+                    await sdk.disconnect();
+                } catch (error) {
+                    console.error('Error disconnecting:', error);
+                }
+            }
+        };
+
+        cleanup();
+
+        // Reset all state
+        setConnectionStatus('Not Connected');
+        setTransactionStatus('');
+        setValues(initialValues);
+
+        // Create new SDK instance with new config
+        setSdk(new EasyaSDK(config));
+    }, [config]);
 
     const updateValue = (key: keyof BlockchainValues, value: string): void => {
         setValues(prev => ({ ...prev, [key]: value }));
     };
 
     const connectToBlockchain = async (): Promise<boolean> => {
+        if (!sdk) return false;
+
         setConnectionStatus('Initialized');
         try {
             setConnectionStatus('Connecting...');
             const result = await sdk.connect();
-            setConnectionStatus(`Connected`);
+            setConnectionStatus('Connected');
             return true;
         } catch (error) {
             setConnectionStatus(`Connection failed: ${error}`);
@@ -45,7 +83,6 @@ export const BlockchainProvider: React.FC<{
     };
 
     const disconnectFromBlockchain = async (): Promise<boolean> => {
-        console.log(`sdk ${sdk}`);
         if (!sdk) {
             setConnectionStatus('Not Connected');
             return true;
@@ -58,20 +95,7 @@ export const BlockchainProvider: React.FC<{
             }
             setConnectionStatus('Not Connected');
             setTransactionStatus('');
-            // Reset values to initial state
-            setValues({
-                recipientAddress: '',
-                transactionAmount: '',
-                tokenName: '',
-                tokenSymbol: '',
-                tokenSupply: '',
-                nftName: '',
-                nftDescription: '',
-                nftURI: null,
-                nftTaxon: '',
-                nftTransferFee: '',
-                nftFlags: '',
-            });
+            setValues(initialValues);
             return true;
         } catch (error) {
             setConnectionStatus(`Disconnect failed: ${error}`);
@@ -79,24 +103,26 @@ export const BlockchainProvider: React.FC<{
         }
     };
 
+    const contextValue: BlockchainContextType = {
+        connectionStatus,
+        transactionStatus,
+        values,
+        updateValue,
+        connectToBlockchain,
+        disconnectFromBlockchain,
+        sendTransaction: () => sendTransaction(sdk, values, setTransactionStatus),
+        mintNFT: () => mintNFT(sdk, values, setTransactionStatus),
+        getBalance: () => getBalance(sdk),
+        getCurrencySymbol: () => getCurrencySymbol(sdk),
+        getAddress: () => getAddress(sdk),
+        getNFTs: () => getNFTs(sdk),
+        transferNFT: (tokenId: string, to: string) => transferNFT(sdk, tokenId, to, setTransactionStatus),
+        checkWalletInstalled: () => checkWalletInstalled(sdk),
+        sdk
+    };
+
     return (
-        <BlockchainContext.Provider value={{
-            connectionStatus,
-            transactionStatus,
-            values,
-            updateValue,
-            connectToBlockchain,
-            disconnectFromBlockchain,
-            sendTransaction: () => sendTransaction(sdk, values, setTransactionStatus),
-            mintNFT: () => mintNFT(sdk, values, setTransactionStatus),
-            getBalance: () => getBalance(sdk),
-            getCurrencySymbol: () => getCurrencySymbol(sdk),
-            getAddress: () => getAddress(sdk),
-            getNFTs: () => getNFTs(sdk),
-            transferNFT: (tokenId: string, to: string) => transferNFT(sdk, tokenId, to, setTransactionStatus),
-            checkWalletInstalled: () => checkWalletInstalled(sdk),
-            sdk
-        }}>
+        <BlockchainContext.Provider value={contextValue}>
             {children}
         </BlockchainContext.Provider>
     );

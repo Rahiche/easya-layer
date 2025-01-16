@@ -1,0 +1,67 @@
+.config-selector {
+    background-color: var(--easya-background);
+    border-radius: var(--easya-radius-lg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: var(--easya-spacing-lg);
+    margin-bottom: var(--easya-spacing-lg);
+  }
+  
+  .config-selector__title {
+    color: var(--easya-text);
+    font-size: var(--easya-font-size-xl);
+    font-weight: var(--easya-font-weight-bold);
+    margin-bottom: var(--easya-spacing-md);
+  }
+  
+  .config-selector__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--easya-spacing-md);
+  }
+  
+  .config-selector__field {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .config-selector__label {
+    display: block;
+    color: var(--easya-text-secondary);
+    font-size: var(--easya-font-size-sm);
+    font-weight: var(--easya-font-weight-medium);
+    margin-bottom: var(--easya-spacing-xs);
+  }
+  
+  .config-selector__select {
+    display: block;
+    width: 100%;
+    background-color: var(--easya-surface);
+    color: var(--easya-text);
+    border: 1px solid var(--easya-border);
+    border-radius: var(--easya-radius-base);
+    padding: var(--easya-spacing-sm);
+    transition: border-color var(--easya-transition-base);
+  }
+  
+  .config-selector__select:hover {
+    border-color: var(--easya-border-hover);
+  }
+  
+  .config-selector__select:focus {
+    border-color: var(--easya-border-focus);
+    outline: none;
+  }
+  
+  .config-selector__button {
+    width: 100%;
+    background-color: var(--easya-primary);
+    color: var(--easya-text);
+    padding: var(--easya-spacing-sm) var(--easya-spacing-md);
+    border-radius: var(--easya-radius-base);
+    font-weight: var(--easya-font-weight-medium);
+    transition: background-color var(--easya-transition-base);
+  }
+  
+  .config-selector__button:hover {
+    background-color: var(--easya-primary-hover);
+  }

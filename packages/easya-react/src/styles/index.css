@@ -8,4 +8,5 @@
 @import './components/AddressDisplay.css';
 @import './components/NFTGallery.css';
 @import './components/NFTTransferForm.css';
+@import './components/ConfigSelector.css';
 @import './core/_variables.css';
