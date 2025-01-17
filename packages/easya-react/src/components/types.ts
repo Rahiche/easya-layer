@@ -9,6 +9,7 @@ export interface BlockchainValues {
   tokenSymbol: string;
   tokenSupply: string;
   nftName: string;
+  nftImage: string;
   nftDescription: string;
   nftURI: any;
   nftTaxon: string;
@@ -29,7 +30,7 @@ export interface BlockchainContextType {
   getCurrencySymbol: () => Promise<string>; 
   getAddress: () => Promise<string>;
   getNFTs: () => Promise<NFT[]>;
-  transferNFT: (tokenId: string, to: string) => Promise<TransactionResult>;
+  transferNFT: (tokenId: string, to: string) => Promise<TransactionResult | null>;
   checkWalletInstalled: () => Promise<boolean>;
   subscribeToEvents: (eventName: string, callback: (data: any) => void) => Promise<void>;
   unsubscribeFromEvents: (eventName: string) => Promise<void>;

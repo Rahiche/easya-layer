@@ -24,6 +24,7 @@ const initialValues: BlockchainValues = {
     tokenSupply: '',
     nftName: '',
     nftDescription: '',
+    nftImage: '',
     nftURI: null,
     nftTaxon: '0',
     nftTransferFee: '0',
@@ -43,7 +44,7 @@ export const BlockchainProvider: React.FC<{
     useEffect(() => {
         // Clean up previous connection if exists
         const cleanup = async () => {
-            if (sdk && typeof sdk.disconnect === 'function') {
+            if (sdk && sdk.isActive() && typeof sdk.disconnect === 'function') {
                 try {
                     await sdk.disconnect();
                 } catch (error) {

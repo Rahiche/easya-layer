@@ -14,9 +14,10 @@ export const transferNFT = async (
     tokenId: string,
     to: string,
     setTransactionStatus: (status: string) => void
-): Promise<TransactionResult> => {
-    if (!sdk) {
-        throw new Error('SDK not initialized');
+): Promise<TransactionResult | null> => {
+    if (!sdk?.isActive()) {
+        setTransactionStatus('Please connect to blockchain first');
+        return null;
     }
 
     try {
@@ -26,12 +27,12 @@ export const transferNFT = async (
         return result;
     } catch (error) {
         setTransactionStatus(`NFT Transfer failed: ${error}`);
-        throw error;
+        return null;
     }
 };
 
 export const mintNFT = async (sdk: EasyaSDK | null, values: BlockchainValues, setTransactionStatus: (status: string) => void): Promise<void> => {
-    if (!sdk) {
+    if (!sdk?.isActive()) {
         setTransactionStatus('Please connect to blockchain first');
         return;
     }
@@ -41,31 +42,35 @@ export const mintNFT = async (sdk: EasyaSDK | null, values: BlockchainValues, se
 
         // Validate inputs
         if (!values.nftURI) {
-            throw new Error('NFT URI is required');
+            setTransactionStatus('NFT URI is required');
+            return;
         }
 
         const taxon = parseInt(values.nftTaxon);
         if (isNaN(taxon)) {
-            throw new Error('Invalid NFT taxon');
+            setTransactionStatus('Invalid NFT taxon');
+            return;
         }
 
         const transferFee = parseInt(values.nftTransferFee);
         if (isNaN(transferFee) || transferFee < 0 || transferFee > 50000) {
-            throw new Error('Transfer fee must be between 0 and 50000');
+            setTransactionStatus('Transfer fee must be between 0 and 50000');
+            return;
         }
 
         const flags = parseInt(values.nftFlags);
         if (isNaN(flags)) {
-            throw new Error('Invalid flags value');
+            setTransactionStatus('Invalid flags value');
+            return;
         }
 
         setTransactionStatus('Minting NFT...');
 
         const nftConfig: NFTConfig = {
             URI: values.nftURI,
-            name: "values.nftName",
-            description: "values.nftDescription",
-            image: "values.",
+            name: values.nftName,
+            description: values.nftDescription,
+            image: values.nftImage,
             taxon: taxon,
             transferFee: transferFee,
             flags: flags
@@ -82,18 +87,19 @@ export const mintNFT = async (sdk: EasyaSDK | null, values: BlockchainValues, se
 };
 
 export const sendTransaction = async (sdk: EasyaSDK | null, values: BlockchainValues, setTransactionStatus: (status: string) => void): Promise<void> => {
-    if (!sdk) {
+    if (!sdk?.isActive()) {
         setTransactionStatus('Please connect to blockchain first');
         return;
     }
 
     try {
-        // Input validation
         if (!values.recipientAddress) {
-            throw new Error('Recipient address is required');
+            setTransactionStatus('Recipient address is required');
+            return;
         }
         if (!values.transactionAmount || parseFloat(values.transactionAmount) <= 0) {
-            throw new Error('Valid amount is required');
+            setTransactionStatus('Valid amount is required');
+            return;
         }
 
         setTransactionStatus('Preparing transaction...');
@@ -115,8 +121,9 @@ export const sendTransaction = async (sdk: EasyaSDK | null, values: BlockchainVa
 };
 
 export const getBalance = async (sdk: EasyaSDK | null): Promise<string> => {
-    if (!sdk) {
-        throw new Error('Not connected to blockchain');
+    console.log('sdk', sdk);
+    if (!sdk?.isActive()) {
+        return '0.000000';
     }
 
     try {
@@ -124,53 +131,49 @@ export const getBalance = async (sdk: EasyaSDK | null): Promise<string> => {
         const balanceInXRP = (balance / 1000000).toFixed(6);
         return balanceInXRP;
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        console.error('Error fetching balance:', errorMessage);
-        throw new Error(`Failed to fetch balance: ${errorMessage}`);
+        console.error('Error fetching balance:', error);
+        return '0.000000';
     }
 };
 
 export const getCurrencySymbol = async (sdk: EasyaSDK | null): Promise<string> => {
-    if (!sdk) {
-        throw new Error('Not connected to blockchain');
+    if (!sdk?.isActive()) {
+        return 'XRP';
     }
 
     try {
         const currencySymbol = await sdk.getCurrencySymbol();
         return currencySymbol;
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        console.error('Error fetching currency symbol:', errorMessage);
-        throw new Error(`Failed to fetch currency symbol: ${errorMessage}`);
+        console.error('Error fetching currency symbol:', error);
+        return 'XRP';
     }
 };
 
 export const getAddress = async (sdk: EasyaSDK | null): Promise<string> => {
-    if (!sdk) {
-        throw new Error('Not connected to blockchain');
+    if (!sdk?.isActive()) {
+        return '';
     }
 
     try {
         const address = await sdk.getAddress();
         return address;
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        console.error('Error fetching address:', errorMessage);
-        throw new Error(`Failed to fetch address: ${errorMessage}`);
+        console.error('Error fetching address:', error);
+        return '';
     }
 };
 
 export const getNFTs = async (sdk: EasyaSDK | null): Promise<NFT[]> => {
-    if (!sdk) {
-        throw new Error('Not connected to blockchain');
+    if (!sdk?.isActive()) {
+        return [];
     }
 
     try {
         const nfts = await sdk.getNFTs();
         return nfts;
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        console.error('Error fetching NFTs:', errorMessage);
-        throw new Error(`Failed to fetch NFTs: ${errorMessage}`);
+        console.error('Error fetching NFTs:', error);
+        return [];
     }
 };
