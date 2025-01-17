@@ -1,13 +1,7 @@
 import { AptosClient } from "aptos";
 import { Aptos, AptosConfig, NetworkToNetworkName } from '@aptos-labs/ts-sdk';
 import { BlockchainProvider, NFT, NFTConfig, TokenConfig, TransactionConfig, TransactionResult, WalletInfo } from "../../core/types";
-
-export interface AptosUtils {
-    stringToHex(str: string): string;
-    hexToString(hex: string): string;
-    octalToDecimal(octal: string): string;
-    decimalToOctal(decimal: string): string;
-}
+import { aptosUtils, AptosUtils } from "./AptosUtils";
 
 export interface AptosBlockchainProvider extends BlockchainProvider {
     utils: AptosUtils;
@@ -26,29 +20,7 @@ export class AptosProvider implements AptosBlockchainProvider {
         devnet: 'https://fullnode.devnet.aptoslabs.com'
     };
 
-    // Initialize utils property
-    public utils: AptosUtils = {
-        stringToHex: (str: string): string => {
-            return Array.from(new TextEncoder().encode(str))
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
-        },
-
-        hexToString: (hex: string): string => {
-            const bytes = new Uint8Array(
-                hex.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16)) || []
-            );
-            return new TextDecoder().decode(bytes);
-        },
-
-        octalToDecimal: (octal: string): string => {
-            return parseInt(octal, 8).toString();
-        },
-
-        decimalToOctal: (decimal: string): string => {
-            return parseInt(decimal).toString(8);
-        }
-    };
+    public utils: AptosUtils = aptosUtils;
 
     constructor(network: string = 'testnet') {
         this.network = network;

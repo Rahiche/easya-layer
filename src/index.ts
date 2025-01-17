@@ -1,4 +1,3 @@
-// easya-sdk.ts
 import { BaseBlockchainSDK } from './BaseBlockchainSDK';
 import { EasyaConfig, NFT, NFTConfig, TransactionConfig, TransactionResult } from './core/types';
 import { ProviderFactory } from './providers/provider.factory';
@@ -130,7 +129,7 @@ export class EasyaSDK extends BaseBlockchainSDK {
             return false;
         }
     }
-    
+
     getCurrencySymbol(): string {
         switch (this.config.blockchain.toLowerCase()) {
           case 'xrpl':
