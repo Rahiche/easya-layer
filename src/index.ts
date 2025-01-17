@@ -3,6 +3,9 @@ import { EasyaConfig, NFT, NFTConfig, TransactionConfig, TransactionResult } fro
 import { ProviderFactory } from './providers/provider.factory';
 
 export class EasyaSDK extends BaseBlockchainSDK {
+    private eventCallbacks: Map<string, (data: any) => void>;
+
+
     constructor(config: EasyaConfig) {
         const provider = ProviderFactory.createProvider(
             config.blockchain,
@@ -10,6 +13,8 @@ export class EasyaSDK extends BaseBlockchainSDK {
             config.wallet
         );
         super(config, provider);
+        this.eventCallbacks = new Map();
+
     }
 
     async connect(): Promise<string> {
@@ -83,7 +88,7 @@ export class EasyaSDK extends BaseBlockchainSDK {
     async getAddress(): Promise<string> {
         try {
             this.ensureConnected();
-            
+
             if (this.currentAddress) {
                 return this.currentAddress;
             }
@@ -101,7 +106,7 @@ export class EasyaSDK extends BaseBlockchainSDK {
             this.ensureConnected();
             const targetAddress = await this.getTargetAddress(address);
             const nfts = await this.provider.getNFTs(targetAddress);
-            
+
             return nfts.map(nft => ({
                 ...nft,
                 price: nft.price ? `${nft.price} ${this.getCurrencySymbol()}` : 'Not for sale'
@@ -132,12 +137,53 @@ export class EasyaSDK extends BaseBlockchainSDK {
 
     getCurrencySymbol(): string {
         switch (this.config.blockchain.toLowerCase()) {
-          case 'xrpl':
-            return 'XRP';
-          case 'aptos': 
-            return 'APT';
-          default:
-            throw new Error(`Unsupported blockchain: ${this.config.blockchain}`);
+            case 'xrpl':
+                return 'XRP';
+            case 'aptos':
+                return 'APT';
+            default:
+                throw new Error(`Unsupported blockchain: ${this.config.blockchain}`);
         }
-      }
+    }
+
+
+    async subscribeToEvents(eventName: string, callback: (data: any) => void): Promise<void> {
+        try {
+            this.ensureConnected();
+
+            // Store callback for cleanup during unsubscribe
+            this.eventCallbacks.set(eventName, callback);
+
+            // Forward the subscription to the provider
+            await this.provider.subscribeToEvents(eventName, callback);
+        } catch (error) {
+            this.handleError('subscribe to events', error);
+        }
+    }
+
+    async unsubscribeFromEvents(eventName: string): Promise<void> {
+        try {
+            this.ensureConnected();
+
+            // Check if we have an active subscription
+            if (!this.eventCallbacks.has(eventName)) {
+                console.warn(`No active subscription found for event: ${eventName}`);
+                return;
+            }
+
+            // Forward the unsubscribe request to the provider
+            await this.provider.unsubscribeFromEvents(eventName);
+
+            // Clean up the stored callback
+            this.eventCallbacks.delete(eventName);
+        } catch (error) {
+            this.handleError('unsubscribe from events', error);
+        }
+    }
+
+    protected override handleError(operation: string, error: any): never {
+        const errorMessage = error?.message || String(error);
+        throw new Error(`Failed to ${operation}: ${errorMessage}`);
+    }
+
 }

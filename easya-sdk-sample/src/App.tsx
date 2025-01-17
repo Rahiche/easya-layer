@@ -9,12 +9,13 @@ const ComponentsContainer: React.FC<{ blockchainConfig: EasyaConfig }> = ({ bloc
     }, []);
 
     return (
-        <EasyaSDK.BlockchainProvider 
-            config={blockchainConfig} 
+        <EasyaSDK.BlockchainProvider
+            config={blockchainConfig}
             key={getConfigKey(blockchainConfig)}
         >
             <div className="components-container">
                 <EasyaSDK.ConnectButton />
+                <EasyaSDK.EventDisplay />
                 <EasyaSDK.BalanceDisplay />
                 <EasyaSDK.AddressDisplay />
                 <EasyaSDK.NFTMintingForm />

@@ -409,7 +409,7 @@ export class XRPLProvider implements XRPLBlockchainProvider {
                 account: targetAddress
             });
 
-            const token = response.result.lines.find((line: any) => 
+            const token = response.result.lines.find((line: any) =>
                 line.currency === tokenId
             );
 
@@ -511,20 +511,55 @@ export class XRPLProvider implements XRPLBlockchainProvider {
             throw new Error('Not connected to XRPL');
         }
 
+        console.log('Subscribing to events:', eventName);
+
         switch (eventName) {
-            case 'ledger':
+            case 'connected':
+                this.connection.on('connected', callback);
+                break;
+            case 'disconnected':
+                this.connection.on('disconnected', callback);
+                break;
+            case 'ledgerClosed':
                 this.connection.request({
                     command: 'subscribe',
                     streams: ['ledger']
                 });
                 this.connection.on('ledgerClosed', callback);
                 break;
-            case 'transactions':
+            case 'validationReceived':
+                this.connection.request({
+                    command: 'subscribe',
+                    streams: ['validations']
+                });
+                this.connection.on('validationReceived', callback);
+                break;
+            case 'transaction':
                 this.connection.request({
                     command: 'subscribe',
                     streams: ['transactions']
                 });
                 this.connection.on('transaction', callback);
+                break;
+            case 'peerStatusChange':
+                this.connection.request({
+                    command: 'subscribe',
+                    streams: ['peer_status']
+                });
+                this.connection.on('peerStatusChange', callback);
+                break;
+            case 'consensusPhase':
+                this.connection.request({
+                    command: 'subscribe',
+                    streams: ['consensus']
+                });
+                this.connection.on('consensusPhase', callback);
+                break;
+            case 'manifestReceived':
+                this.connection.on('manifestReceived', callback);
+                break;
+            case 'error':
+                this.connection.on('error', callback);
                 break;
             default:
                 throw new Error(`Unsupported event type: ${eventName}`);
@@ -537,22 +572,74 @@ export class XRPLProvider implements XRPLBlockchainProvider {
         }
 
         switch (eventName) {
-            case 'ledger':
+            case 'connected':
+                this.connection.off('connected');
+                break;
+            case 'disconnected':
+                this.connection.off('disconnected');
+                break;
+            case 'ledgerClosed':
                 this.connection.request({
                     command: 'unsubscribe',
                     streams: ['ledger']
                 });
                 this.connection.off('ledgerClosed');
                 break;
-            case 'transactions':
+            case 'validationReceived':
+                this.connection.request({
+                    command: 'unsubscribe',
+                    streams: ['validations']
+                });
+                this.connection.off('validationReceived');
+                break;
+            case 'transaction':
                 this.connection.request({
                     command: 'unsubscribe',
                     streams: ['transactions']
                 });
                 this.connection.off('transaction');
                 break;
+            case 'peerStatusChange':
+                this.connection.request({
+                    command: 'unsubscribe',
+                    streams: ['peer_status']
+                });
+                this.connection.off('peerStatusChange');
+                break;
+            case 'consensusPhase':
+                this.connection.request({
+                    command: 'unsubscribe',
+                    streams: ['consensus']
+                });
+                this.connection.off('consensusPhase');
+                break;
+            case 'manifestReceived':
+                this.connection.off('manifestReceived');
+                break;
+            case 'error':
+                this.connection.off('error');
+                break;
             default:
                 throw new Error(`Unsupported event type: ${eventName}`);
         }
+
+        // switch (eventName) {
+        //     case 'ledger':
+        //         this.connection.request({
+        //             command: 'unsubscribe',
+        //             streams: ['ledger']
+        //         });
+        //         this.connection.off('ledgerClosed');
+        //         break;
+        //     case 'transactions':
+        //         this.connection.request({
+        //             command: 'unsubscribe',
+        //             streams: ['transactions']
+        //         });
+        //         this.connection.off('transaction');
+        //         break;
+        //     default:
+        //         throw new Error(`Unsupported event type: ${eventName}`);
+        // }
     }
 }

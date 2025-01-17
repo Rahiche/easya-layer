@@ -118,6 +118,8 @@ export const BlockchainProvider: React.FC<{
         getNFTs: () => getNFTs(sdk),
         transferNFT: (tokenId: string, to: string) => transferNFT(sdk, tokenId, to, setTransactionStatus),
         checkWalletInstalled: () => checkWalletInstalled(sdk),
+        subscribeToEvents: (eventName: string, callback: (data: any) => void) => sdk.subscribeToEvents(eventName, callback),
+        unsubscribeFromEvents: (eventName: string) => sdk.unsubscribeFromEvents(eventName),
         sdk
     };
 
