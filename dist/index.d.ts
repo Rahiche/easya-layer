@@ -1,44 +1,20 @@
-import { NFTConfig, TransactionConfig } from './core/types';
-export declare class EasyaSDK {
-    private config;
-    private provider;
-    private isConnected;
-    constructor();
+import { BaseBlockchainSDK } from './BaseBlockchainSDK';
+import { EasyaConfig, NFT, NFTConfig, TransactionConfig, TransactionResult } from './core/types';
+export declare class EasyaSDK extends BaseBlockchainSDK {
+    private eventCallbacks;
+    constructor(config: EasyaConfig);
     connect(): Promise<string>;
     disconnect(): Promise<void>;
     isActive(): boolean;
-    /**
-     * Sends a transaction using the configured blockchain provider
-     * @param config Transaction configuration parameters
-     * @returns Promise containing the transaction result
-     * @throws Error if not connected or if transaction fails
-     */
-    sendTransaction(config: TransactionConfig): Promise<import("./core/types").TransactionResult>;
-    /**
-     * Validates transaction configuration parameters
-     * @param config Transaction configuration to validate
-     * @throws Error if config is invalid
-     */
-    private validateTransactionConfig;
-    /**
-     * Mints a new NFT using the configured blockchain provider
-     * @param config NFT configuration parameters
-     * @returns Promise containing the transaction result
-     * @throws Error if not connected or if minting fails
-     */
-    mintNFT(config: NFTConfig): Promise<import("./core/types").TransactionResult>;
-    /**
-     * Validates NFT configuration parameters
-     * @param config NFT configuration to validate
-     * @throws Error if config is invalid
-     */
-    private validateNFTConfig;
-    /**
-   * Gets the balance for a given address or the connected wallet
-   * @param address Optional address to check balance for
-   * @returns Promise containing the balance as a string
-   * @throws Error if not connected or if balance check fails
-   */
+    sendTransaction(config: TransactionConfig): Promise<TransactionResult>;
+    mintNFT(config: NFTConfig): Promise<TransactionResult>;
     getBalance(address?: string): Promise<number>;
+    getAddress(): Promise<string>;
+    getNFTs(address?: string): Promise<NFT[]>;
+    transferNFT(tokenId: string, to: string): Promise<TransactionResult>;
+    isWalletInstalled(): Promise<boolean>;
     getCurrencySymbol(): string;
+    subscribeToEvents(eventName: string, callback: (data: any) => void): Promise<void>;
+    unsubscribeFromEvents(eventName: string): Promise<void>;
+    protected handleError(operation: string, error: any): never;
 }
