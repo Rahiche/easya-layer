@@ -135,6 +135,11 @@ export class EasyaSDK extends BaseBlockchainSDK {
         }
     }
 
+
+    getBlockchain(): string {
+        return this.config.blockchain;
+    }
+
     getCurrencySymbol(): string {
         switch (this.config.blockchain.toLowerCase()) {
             case 'xrpl':

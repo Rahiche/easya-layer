@@ -133,7 +133,7 @@ const NFTGallery: React.FC<NFTGalleryProps> = ({ className = '' }) => {
   );
 
   // If chain is not XRPL, render a message
-  if (sdk?.config.blockchain !== 'xrpl') {
+  if (sdk?.getBlockchain() !== 'xrpl') {
     return (
       <div className="p-4 text-center">
         <h2 className="text-xl font-semibold mb-4">NFT Gallery</h2>
