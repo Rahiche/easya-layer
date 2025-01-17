@@ -130,4 +130,15 @@ export class EasyaSDK extends BaseBlockchainSDK {
             return false;
         }
     }
+    
+    getCurrencySymbol(): string {
+        switch (this.config.blockchain.toLowerCase()) {
+          case 'xrpl':
+            return 'XRP';
+          case 'aptos': 
+            return 'APT';
+          default:
+            throw new Error(`Unsupported blockchain: ${this.config.blockchain}`);
+        }
+      }
 }
