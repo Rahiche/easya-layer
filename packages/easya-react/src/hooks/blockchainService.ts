@@ -1,6 +1,58 @@
 import { EasyaSDK } from '../../../../src';
-import { NFT, NFTConfig, TransactionResult } from '../../../../src/core/types';
+import { Balance, NFT, NFTConfig, TransactionResult } from '../../../../src/core/types';
 import { BlockchainValues } from '../components/types';
+
+export const getBalances = async (sdk: EasyaSDK): Promise<Balance[]> => {
+    try {
+        if (!sdk || !sdk.isActive()) {
+            throw new Error('SDK not initialized or not connected');
+        }
+
+        const balances = await sdk.getBalances();
+        return Array.isArray(balances)
+            ? balances.map(balance => ({
+                currency: balance.currency || 'Native',
+                value: balance.value?.toString() || '0',
+                issuer: balance.issuer
+            }))
+            : [];
+    } catch (error) {
+        console.error('Error fetching balances:', error);
+        throw error;
+    }
+};
+
+export const createTrustLine = async (
+    sdk: EasyaSDK | null,
+    values: BlockchainValues,
+    setTransactionStatus: (status: string) => void
+): Promise<void> => {
+    if (!sdk) {
+        throw new Error('SDK not initialized');
+    }
+
+    try {
+        setTransactionStatus('Creating trust line...');
+
+        const config = {
+            currency: values.currency,
+            issuer: values.issuerAddress,
+            limit: values.trustLineLimit
+        };
+
+        const result = await sdk.createTrustLine(config);
+
+        if (result) {
+            setTransactionStatus('Trust line created successfully');
+        } else {
+            setTransactionStatus('Failed to create trust line');
+        }
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        setTransactionStatus(`Failed to create trust line: ${errorMessage}`);
+        throw error;
+    }
+};
 
 export const checkWalletInstalled = async (sdk: EasyaSDK | null): Promise<boolean> => {
     if (!sdk) {
@@ -10,7 +62,7 @@ export const checkWalletInstalled = async (sdk: EasyaSDK | null): Promise<boolea
 }
 
 export const transferNFT = async (
-    sdk: EasyaSDK | null, 
+    sdk: EasyaSDK | null,
     tokenId: string,
     to: string,
     setTransactionStatus: (status: string) => void
@@ -106,17 +158,30 @@ export const sendTransaction = async (sdk: EasyaSDK | null, values: BlockchainVa
 
         const amountInDrops = (parseFloat(values.transactionAmount)).toString();
 
-        const result = await sdk.sendTransaction({
-            to: values.recipientAddress,
-            amount: amountInDrops
-        });
+        if (values.selectedCurrency != "") {
+            const issuer = await sdk.getAddress();
 
-        setTransactionStatus(`Transaction sent successfully! Hash: ${result.hash}`);
+            console.log('values', values);
+            console.log('issuer', issuer);
+            const result = await sdk.sendTransaction({
+                to: values.recipientAddress,
+                amount: values.transactionAmount,
+                currency: values.selectedCurrency,
+                issuer: issuer,
+            });
+            setTransactionStatus(`Transaction sent successfully! Hash: ${result.hash}`);
+        } else {
+            const result = await sdk.sendTransaction({
+                to: values.recipientAddress,
+                amount: amountInDrops
+            });
 
+            setTransactionStatus(`Transaction sent successfully! Hash: ${result.hash}`);
+        }
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         setTransactionStatus(`Transaction failed: ${errorMessage}`);
-        console.error('Transaction error:', error);
+        console.error('Transaction error:', errorMessage);
     }
 };
 

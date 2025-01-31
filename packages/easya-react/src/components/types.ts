@@ -1,5 +1,5 @@
 import { EasyaSDK } from "../../../../src";
-import { NFT, TransactionResult } from "../../../../src/core/types";
+import { Balance, NFT, TransactionResult } from "../../../../src/core/types";
 
 
 export interface BlockchainValues {
@@ -15,7 +15,14 @@ export interface BlockchainValues {
   nftTaxon: string;
   nftTransferFee: string;
   nftFlags: string;
+  selectedCurrency: string; 
+  // Trust line related values
+  currency: string;
+  issuerAddress: string;
+  trustLineLimit: string;
 }
+
+
 
 export interface BlockchainContextType {
   connectionStatus: string;
@@ -34,5 +41,7 @@ export interface BlockchainContextType {
   checkWalletInstalled: () => Promise<boolean>;
   subscribeToEvents: (eventName: string, callback: (data: any) => void) => Promise<void>;
   unsubscribeFromEvents: (eventName: string) => Promise<void>;
+  createTrustLine: () => Promise<void>;
+  getBalances: () => Promise<Balance[]>;
   sdk: EasyaSDK | null;
 }

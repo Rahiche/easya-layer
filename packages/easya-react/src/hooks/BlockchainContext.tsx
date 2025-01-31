@@ -10,7 +10,9 @@ import {
     getAddress,
     getNFTs,
     transferNFT,
-    checkWalletInstalled
+    checkWalletInstalled,
+    createTrustLine,
+    getBalances
 } from './blockchainService';
 import { ConnectionConfig, EasyaConfig } from '../../../../src/core/types';
 
@@ -28,7 +30,12 @@ const initialValues: BlockchainValues = {
     nftURI: null,
     nftTaxon: '0',
     nftTransferFee: '0',
-    nftFlags: '0'
+    nftFlags: '0',
+    selectedCurrency: '',
+    // trust line values
+    currency: '',
+    issuerAddress: '',
+    trustLineLimit: ''
 };
 
 export const BlockchainProvider: React.FC<{
@@ -121,6 +128,8 @@ export const BlockchainProvider: React.FC<{
         checkWalletInstalled: () => checkWalletInstalled(sdk),
         subscribeToEvents: (eventName: string, callback: (data: any) => void) => sdk.subscribeToEvents(eventName, callback),
         unsubscribeFromEvents: (eventName: string) => sdk.unsubscribeFromEvents(eventName),
+        createTrustLine: () => createTrustLine(sdk, values, setTransactionStatus),
+        getBalances: () => getBalances(sdk),
         sdk
     };
 
