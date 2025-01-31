@@ -12,6 +12,8 @@ export { default as NFTTransferForm } from './components/NFTTransferForm';
 export { default as NFTGallery } from './components/NFTGallery';
 export { default as ConfigSelector } from './components/ConfigSelector';
 export { default as EventDisplay } from './components/EventDisplay';
+export { default as TrustLineForm } from './components/TrustLineForm';
+export { default as BalancesDisplay } from './components/BalancesDisplay';
 
 // You might also want to export the types
 // export * from './types';
