@@ -1,17 +1,12 @@
-import { BlockchainProvider, NFT, NFTConfig, TokenConfig, TransactionConfig, TransactionResult, WalletAdapter, WalletInfo } from "../../core/types";
+import { Balance, BlockchainProvider, CurrencyTransactionConfig, NFT, NFTConfig, TokenConfig, TokenIssuanceResult, TransactionConfig, TransactionResult, TrustLineConfig, WalletAdapter, WalletInfo } from "../../core/types";
 import { AccountSet, Client, NFTokenCreateOffer, NFTokenMint, Payment, TrustSet, dropsToXrp, xrpToDrops } from "xrpl";
 import { WalletAdapterRegistry } from "../../wallets/WalletAdapterRegistry";
 import { CrossmarkAdapter } from "../../wallets/CrossmarkAdapter";
 import { GemWalletAdapter } from "../../wallets/GemWalletAdapter";
-import { xrplUtils, XRPLUtils } from "./XRPLUtils";
+import { XRPLUtils } from "./XRPLUtils";
 
 
-
-export interface XRPLBlockchainProvider extends BlockchainProvider {
-    utils: XRPLUtils;
-}
-
-export class XRPLProvider implements XRPLBlockchainProvider {
+export class XRPLProvider implements BlockchainProvider {
     private walletAdapter: WalletAdapter;
     private walletInfo: WalletInfo | null = null;
     private connection!: Client;
@@ -29,11 +24,12 @@ export class XRPLProvider implements XRPLBlockchainProvider {
         registry.registerAdapter('crossmark', new CrossmarkAdapter());
         registry.registerAdapter('gem', new GemWalletAdapter());
         this.walletAdapter = registry.getAdapter(walletName);
+
     }
 
-
-
-    public utils = xrplUtils;
+    xrplUtils(): XRPLUtils {
+        return new XRPLUtils(this.connection);;
+    }
 
     async isWalletInstalled(): Promise<boolean> {
         const maxRetries = 3;
@@ -170,7 +166,7 @@ export class XRPLProvider implements XRPLBlockchainProvider {
             const nftMint: NFTokenMint = {
                 TransactionType: "NFTokenMint",
                 Account: this.walletInfo.address,
-                URI: this.utils.stringToHex(JSON.stringify(config.URI)),
+                URI: this.xrplUtils().stringToHex(JSON.stringify(config.URI)),
                 Flags: config.flags || 0,
                 TransferFee: config.transferFee || 0,
                 NFTokenTaxon: config.taxon
@@ -204,6 +200,94 @@ export class XRPLProvider implements XRPLBlockchainProvider {
             };
         } catch (error) {
             throw new Error(`NFT minting failed: ${error}`);
+        }
+    }
+
+    async issueFungibleToken(config: TokenConfig): Promise<TokenIssuanceResult> {
+        try {
+            if (!this.walletInfo || !this.connection) {
+                throw new Error('Not connected to XRPL');
+            }
+
+            // Validate currency code
+            if (!config.currency || config.currency.length < 1 || config.currency.length > 4) {
+                throw new Error('Invalid currency code. Must be 1-4 characters for standard currencies.');
+            }
+
+            let trustLineHash: string | undefined;
+
+            // Create trust line if limit is specified
+            if (config.limit) {
+                const trustSetTx: TrustSet = {
+                    TransactionType: "TrustSet",
+                    Account: config.destination,
+                    LimitAmount: {
+                        currency: config.currency,
+                        issuer: config.issuer,
+                        value: config.limit
+                    }
+                };
+
+                const preparedTrust = await this.connection.autofill(trustSetTx);
+                const trustResponse = await this.walletAdapter.signAndSubmit(preparedTrust);
+
+                if (trustResponse.result.engine_result !== 'tesSUCCESS') {
+                    throw new Error(`Trust line creation failed: ${trustResponse.result.engine_result_message}`);
+                }
+
+                trustLineHash = trustResponse.result.hash;
+
+                // Wait for trust line to be validated
+                await this.connection.request({
+                    command: 'ledger_current'
+                });
+            }
+
+            // Issue tokens
+            const issuance: Payment = {
+                TransactionType: "Payment",
+                Account: config.issuer,
+                Destination: config.destination,
+                Amount: {
+                    currency: config.currency,
+                    value: config.amount,
+                    issuer: config.issuer
+                }
+            };
+
+            // Add destination tag if provided
+            if (config.destinationTag !== undefined) {
+                issuance.DestinationTag = config.destinationTag;
+            }
+
+            // Set transfer rate if provided
+            if (config.transferRate !== undefined) {
+                const transferRateTx: AccountSet = {
+                    TransactionType: "AccountSet",
+                    Account: config.issuer,
+                    TransferRate: Math.floor(config.transferRate * 1000000000)
+                };
+
+                const preparedTransferRate = await this.connection.autofill(transferRateTx);
+                await this.walletAdapter.signAndSubmit(preparedTransferRate);
+            }
+
+            const prepared = await this.connection.autofill(issuance);
+            const response = await this.walletAdapter.signAndSubmit(prepared);
+
+            if (response.result.engine_result !== 'tesSUCCESS') {
+                throw new Error(`Token issuance failed: ${response.result.engine_result_message}`);
+            }
+
+            return {
+                trustLineHash,
+                issuanceHash: response.result.hash,
+                amount: config.amount,
+                currency: config.currency
+            };
+
+        } catch (error) {
+            throw new Error(`Failed to issue token: ${error}`);
         }
     }
 
@@ -295,7 +379,7 @@ export class XRPLProvider implements XRPLBlockchainProvider {
 
                     if (nftToken.URI) {
                         try {
-                            const decodedUri = this.utils.hexToString(nftToken.URI);
+                            const decodedUri = this.xrplUtils().hexToString(nftToken.URI);
                             try {
                                 metadata = JSON.parse(decodedUri);
                             } catch {
@@ -386,6 +470,126 @@ export class XRPLProvider implements XRPLBlockchainProvider {
         }
     }
 
+    async sendCurrency(config: CurrencyTransactionConfig): Promise<TransactionResult> {
+        try {
+            if (!this.walletInfo || !this.connection) {
+                throw new Error('Not connected to XRPL');
+            }
+
+            const payment: Payment = {
+                TransactionType: "Payment",
+                Account: this.walletInfo.address,
+                Amount: {
+                    currency: config.currency,
+                    value: config.amount,
+                    issuer: config.issuer
+                },
+                Destination: config.destination,
+            };
+
+            const prepared = await this.connection.autofill(payment);
+            const response = await this.walletAdapter.signAndSubmit(prepared);
+
+            console.log('Currency payment response:', response);
+
+            return {
+                hash: response.result.hash,
+                status: response.result.validated ? 'confirmed' : 'pending'
+            };
+        } catch (error) {
+            throw new Error(`Currency payment failed: ${error}`);
+        }
+    }
+
+    async createTrustLine(config: TrustLineConfig): Promise<TransactionResult> {
+        try {
+            // Verify connection state
+            if (!this.walletInfo || !this.connection) {
+                throw new Error('Not connected to XRPL');
+            }
+
+            // Validate inputs
+            if (!config.currency || !config.issuer) {
+                throw new Error('Currency and issuer are required');
+            }
+
+            // Create TrustSet transaction
+            const trustSet: TrustSet = {
+                TransactionType: "TrustSet",
+                Account: this.walletInfo.address,
+                LimitAmount: {
+                    currency: config.currency,
+                    issuer: config.issuer,
+                    value: config.limit || "1000000000" // Default limit if not specified
+                }
+            };
+
+            // Prepare and submit the transaction
+            const prepared = await this.connection.autofill(trustSet);
+            const response = await this.walletAdapter.signAndSubmit(prepared);
+
+            console.log('Trust line creation response:', response);
+
+            return {
+                hash: response.result.hash
+            };
+        } catch (error) {
+            throw new Error(`Failed to create trust line: ${error}`);
+        }
+    }
+
+    async getBalances(address?: string): Promise<Balance[]> {
+        try {
+            if (!this.connection || !this.connection.isConnected()) {
+                throw new Error('Not connected to XRPL');
+            }
+
+            const targetAddress = address || this.walletInfo?.address;
+            if (!targetAddress) {
+                throw new Error('No address provided and no wallet connected');
+            }
+
+            // Get native XRP balance
+            const nativeBalance = await this.getBalance(targetAddress);
+            const balances: Balance[] = [{
+                currency: 'XRP',
+                value: nativeBalance.toString(),
+                issuer: undefined
+            }];
+
+            // Get issued currency balances
+            try {
+                const response = await this.connection.request({
+                    command: 'account_lines',
+                    account: targetAddress,
+                    ledger_index: 'validated'
+                });
+
+                const lines = response.result.lines;
+                if (Array.isArray(lines)) {
+                    for (const line of lines) {
+                        if (line.balance !== '0') {
+                            balances.push({
+                                currency: line.currency,
+                                value: line.balance,
+                                issuer: line.account
+                            });
+                        }
+                    }
+                }
+            } catch (error: any) {
+                // If account_lines fails but we have XRP balance, just return that
+                if (error.data?.error !== 'actNotFound') {
+                    console.warn('Failed to fetch issued currency balances:', error);
+                }
+            }
+
+            return balances;
+        } catch (error) {
+            console.error('Error in getBalances:', error);
+            throw error;
+        }
+    }
     validateAddress(address: string): boolean {
         // Basic XRP address validation
         const xrpAddressRegex = /^r[1-9A-HJ-NP-Za-km-z]{25,34}$/;
@@ -435,7 +639,7 @@ export class XRPLProvider implements XRPLBlockchainProvider {
             let metadata: Record<string, any> = {};
 
             if (nftInfo.uri) {
-                const decodedUri = this.utils.hexToString(nftInfo.uri);
+                const decodedUri = this.xrplUtils().hexToString(nftInfo.uri);
                 try {
                     metadata = JSON.parse(decodedUri);
                 } catch {
@@ -622,24 +826,5 @@ export class XRPLProvider implements XRPLBlockchainProvider {
             default:
                 throw new Error(`Unsupported event type: ${eventName}`);
         }
-
-        // switch (eventName) {
-        //     case 'ledger':
-        //         this.connection.request({
-        //             command: 'unsubscribe',
-        //             streams: ['ledger']
-        //         });
-        //         this.connection.off('ledgerClosed');
-        //         break;
-        //     case 'transactions':
-        //         this.connection.request({
-        //             command: 'unsubscribe',
-        //             streams: ['transactions']
-        //         });
-        //         this.connection.off('transaction');
-        //         break;
-        //     default:
-        //         throw new Error(`Unsupported event type: ${eventName}`);
-        // }
     }
 }

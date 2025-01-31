@@ -1,5 +1,5 @@
 import { BaseBlockchainSDK } from './BaseBlockchainSDK';
-import { EasyaConfig, NFT, NFTConfig, TransactionConfig, TransactionResult } from './core/types';
+import { Balance, CurrencyTransactionConfig, EasyaConfig, NFT, NFTConfig, TransactionConfig, TransactionResult } from './core/types';
 import { ProviderFactory } from './providers/provider.factory';
 
 export class EasyaSDK extends BaseBlockchainSDK {
@@ -50,10 +50,32 @@ export class EasyaSDK extends BaseBlockchainSDK {
         return this.isConnected;
     }
 
-    async sendTransaction(config: TransactionConfig): Promise<TransactionResult> {
+    async sendTransaction(config: TransactionConfig & { currency?: string; issuer?: string }): Promise<TransactionResult> {
         try {
             this.ensureConnected();
-            this.validateTransactionConfig(config);
+
+            // If currency is specified and it's not the native currency (e.g., XRP)
+            if (config.currency && config.currency !== 'XRP') {
+                if (!config.issuer) {
+                    throw new Error('Issuer is required for non-XRP currency transactions');
+                }
+
+                // Check if recipient has a trust line for this currency
+                const hasTrustLine = await this.provider.xrplUtils().checkTrustLine(config.to, config.currency, config.issuer);
+                
+                if (!hasTrustLine) {
+                    throw new Error(`Recipient ${config.to} does not have a trust line for ${config.currency}. They must add a trust line for ${config.currency} from issuer ${config.issuer} before receiving the token.`);
+                }
+
+                const currencyConfig: CurrencyTransactionConfig = {
+                    currency: config.currency,
+                    amount: config.amount,
+                    destination: config.to,
+                    issuer: config.issuer
+                };
+
+                return await this.provider.sendCurrency(currencyConfig);
+            }
 
             const amountInDrops = parseFloat(config.amount).toString();
             return await this.provider.sendTransaction({
@@ -65,6 +87,7 @@ export class EasyaSDK extends BaseBlockchainSDK {
         }
     }
 
+
     async mintNFT(config: NFTConfig): Promise<TransactionResult> {
         try {
             this.ensureConnected();
@@ -72,6 +95,17 @@ export class EasyaSDK extends BaseBlockchainSDK {
             return await this.provider.mintNFT(config);
         } catch (error) {
             return this.handleError('mint NFT', error);
+        }
+    }
+
+
+
+    async getBalances(): Promise<Balance[]> {
+        try {
+            this.ensureConnected();
+            return await this.provider.getBalances();
+        } catch (error) {
+            return this.handleError('get Balances', error);
         }
     }
 

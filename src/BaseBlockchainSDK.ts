@@ -1,4 +1,5 @@
-import { BlockchainProvider, EasyaConfig, NFTConfig, TransactionConfig } from './core/types';
+import { BlockchainProvider, CurrencyTransactionConfig, EasyaConfig, NFTConfig, TransactionConfig, TransactionResult, TrustLineConfig } from './core/types';
+import { formatCurrencyAmount, validateCurrencyTransactionConfig, validateTrustLineConfig } from './providers/xrpl/XRPLUtils';
 
 export abstract class BaseBlockchainSDK {
     protected isConnected: boolean = false;
@@ -95,4 +96,33 @@ export abstract class BaseBlockchainSDK {
                 throw new Error(`Unsupported blockchain: ${this.config.blockchain}`);
         }
     }
+
+    async createTrustLine(config: TrustLineConfig): Promise<TransactionResult> {
+        try {
+            this.ensureConnected();
+            validateTrustLineConfig(config);
+            
+            return await this.provider.createTrustLine(config);
+        } catch (error) {
+            return this.handleError('create trust line', error);
+        }
+    }
+    
+    async sendCurrency(config: CurrencyTransactionConfig): Promise<TransactionResult> {
+        try {
+            this.ensureConnected();
+            validateCurrencyTransactionConfig(config);
+            
+            // Convert amount to proper format if needed
+            const formattedConfig = {
+                ...config,
+                amount: formatCurrencyAmount(config.amount)
+            };
+            
+            return await this.provider.sendCurrency(formattedConfig);
+        } catch (error) {
+            return this.handleError('send currency', error);
+        }
+    }
+    
 }
