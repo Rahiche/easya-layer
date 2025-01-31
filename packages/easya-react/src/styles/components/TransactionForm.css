@@ -82,3 +82,24 @@
     font-size: var(--easya-font-size-sm);
     margin-top: var(--easya-spacing-sm);
 }
+
+.currency-select {
+    padding: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    background-color: white;
+}
+
+.currency-select:disabled {
+    background-color: #f7fafc;
+    cursor: not-allowed;
+}
+
+.amount-input-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}

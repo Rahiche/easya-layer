@@ -1,0 +1,125 @@
+/* TrustLine Form Styles using EasyA Design System */
+
+.trustline-container {
+    background-color: var(--easya-background);
+    padding: var(--easya-spacing-md);
+    border-radius: var(--easya-radius-base);
+    font-family: var(--easya-font-family);
+}
+
+/* Form inputs */
+.trustline-input {
+    width: 100%;
+    padding: var(--easya-spacing-md);
+    background-color: var(--easya-background-secondary);
+    border: 1px solid var(--easya-border);
+    border-radius: var(--easya-radius-base);
+    color: var(--easya-text);
+    font-size: var(--easya-font-size-base);
+    transition: var(--easya-transition-base);
+}
+
+.trustline-input:hover:not(:disabled) {
+    border-color: var(--easya-border-hover);
+}
+
+.trustline-input:focus {
+    outline: none;
+    border-color: var(--easya-border-focus);
+    box-shadow: 0 0 0 2px var(--easya-primary-light);
+}
+
+.trustline-input:disabled {
+    background-color: var(--easya-background-tertiary);
+    color: var(--easya-text-disabled);
+    cursor: not-allowed;
+}
+
+.trustline-input::placeholder {
+    color: var(--easya-text-tertiary);
+}
+
+/* Submit button */
+.trustline-button {
+    width: 100%;
+    padding: var(--easya-spacing-md);
+    background-color: var(--easya-primary);
+    color: var(--easya-text);
+    border: none;
+    border-radius: var(--easya-radius-base);
+    font-weight: var(--easya-font-weight-semibold);
+    font-size: var(--easya-font-size-base);
+    transition: var(--easya-transition-base);
+}
+
+.trustline-button:hover:not(:disabled) {
+    background-color: var(--easya-primary-hover);
+}
+
+.trustline-button:active:not(:disabled) {
+    background-color: var(--easya-primary-active);
+}
+
+.trustline-button:disabled {
+    background-color: var(--easya-background-tertiary);
+    color: var(--easya-text-disabled);
+    cursor: not-allowed;
+}
+
+/* Error message */
+.trustline-error {
+    background-color: color-mix(in srgb, var(--easya-error) 10%, transparent);
+    border: 1px solid var(--easya-error);
+    color: var(--easya-error-light);
+    padding: var(--easya-spacing-md);
+    border-radius: var(--easya-radius-base);
+    margin-top: var(--easya-spacing-md);
+    font-size: var(--easya-font-size-sm);
+}
+
+/* Transaction status */
+.transaction-status {
+    margin-top: var(--easya-spacing-md);
+    padding: var(--easya-spacing-md);
+    border-radius: var(--easya-radius-base);
+    font-size: var(--easya-font-size-sm);
+}
+
+.status-pending {
+    background-color: color-mix(in srgb, var(--easya-warning) 10%, transparent);
+    border: 1px solid var(--easya-warning);
+    color: var(--easya-warning);
+}
+
+.status-success {
+    background-color: color-mix(in srgb, var(--easya-success) 10%, transparent);
+    border: 1px solid var(--easya-success);
+    color: var(--easya-success);
+}
+
+.status-error {
+    background-color: color-mix(in srgb, var(--easya-error) 10%, transparent);
+    border: 1px solid var(--easya-error);
+    color: var(--easya-error);
+}
+
+/* Loading animation */
+@keyframes loading-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.loading {
+    background: linear-gradient(
+        90deg,
+        var(--easya-background-secondary) 25%,
+        var(--easya-background-tertiary) 37%,
+        var(--easya-background-secondary) 63%
+    );
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+}
