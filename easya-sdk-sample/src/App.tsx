@@ -18,9 +18,12 @@ const ComponentsContainer: React.FC<{ blockchainConfig: EasyaConfig }> = ({ bloc
                 <EasyaSDK.EventDisplay />
                 <EasyaSDK.BalanceDisplay />
                 <EasyaSDK.AddressDisplay />
-                <EasyaSDK.NFTMintingForm />
-                <EasyaSDK.NFTGallery />
                 <EasyaSDK.TransactionForm />
+                <EasyaSDK.TrustLineForm />
+                <EasyaSDK.BalancesDisplay />
+                {/* <EasyaSDK.NFTMintingForm /> */}
+                {/* <EasyaSDK.NFTGallery /> */}
+
             </div>
         </EasyaSDK.BlockchainProvider>
     );
