@@ -5,12 +5,12 @@ import { Balance } from '../../../../src/core/types';
 
 interface BalancesDisplayProps {
     className?: string;
-    refreshInterval?: number; // in milliseconds
+    refreshInterval?: number | null; // in milliseconds, null means no refresh
 }
 
 export const BalancesDisplay: React.FC<BalancesDisplayProps> = ({
     className = '',
-    refreshInterval = 10000 // Default refresh every 10 seconds
+    refreshInterval = null // Default to no refresh
 }) => {
     const { connectionStatus, getBalances } = useBlockchain();
     const [balances, setBalances] = useState<Balance[]>([]);
@@ -39,9 +39,11 @@ export const BalancesDisplay: React.FC<BalancesDisplayProps> = ({
 
     useEffect(() => {
         fetchBalances();
+        if (refreshInterval !== null) {
 
         const intervalId = setInterval(fetchBalances, refreshInterval);
         return () => clearInterval(intervalId);
+        }
     }, [connectionStatus, refreshInterval]);
 
     const renderBalances = () => {

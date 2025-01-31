@@ -3,12 +3,12 @@ import { useBlockchain } from '../hooks/BlockchainContext';
 
 interface BalanceDisplayProps {
   className?: string;
-  refreshInterval?: number; // in milliseconds
+  refreshInterval?: number | null; // in milliseconds, null means no refresh
 }
 
 export const BalanceDisplay: React.FC<BalanceDisplayProps> = ({ 
   className = '',
-  refreshInterval = 10000 // Default refresh every 10 seconds
+  refreshInterval = null // Default to no refresh
 }) => {
   const { connectionStatus, getBalance, getCurrencySymbol } = useBlockchain();
   const [balance, setBalance] = useState<string>('0');
@@ -39,9 +39,12 @@ export const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
   useEffect(() => {
     fetchBalance();
     
-    const intervalId = setInterval(fetchBalance, refreshInterval);
-    return () => clearInterval(intervalId);
+    if (refreshInterval !== null) {
+      const intervalId = setInterval(fetchBalance, refreshInterval);
+      return () => clearInterval(intervalId);
+    }
   }, [connectionStatus, refreshInterval]);
+
 
   const renderBalance = () => {
     if (!connectionStatus || connectionStatus === 'Disconnected') {
