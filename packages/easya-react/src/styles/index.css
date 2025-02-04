@@ -11,4 +11,5 @@
 @import './components/ConfigSelector.css';
 @import './components/BalancesDisplay.css';
 @import './components/TrustLineForm.css';
+@import './components/IssueTokenForm.css';
 @import './core/_variables.css';

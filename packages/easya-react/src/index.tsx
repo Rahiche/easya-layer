@@ -14,6 +14,7 @@ export { default as ConfigSelector } from './components/ConfigSelector';
 export { default as EventDisplay } from './components/EventDisplay';
 export { default as TrustLineForm } from './components/TrustLineForm';
 export { default as BalancesDisplay } from './components/BalancesDisplay';
+export { default as IssueTokenForm } from './components/IssueTokenForm';
 
 // You might also want to export the types
 // export * from './types';
