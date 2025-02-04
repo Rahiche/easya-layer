@@ -677,13 +677,13 @@ export class XRPLProvider implements BlockchainProvider {
             if (!targetAddress) {
                 throw new Error('No address provided and no wallet connected');
             }
-
             // Get native XRP balance
             const nativeBalance = await this.getBalance(targetAddress);
             const balances: Balance[] = [{
                 currency: 'XRP',
-                value: nativeBalance.toString(),
-                issuer: undefined
+                value: dropsToXrp(nativeBalance).toString(),
+                issuer: undefined,
+                nonStandard: "XRP",
             }];
 
             // Get issued currency balances

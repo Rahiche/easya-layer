@@ -41,8 +41,8 @@ export const BalancesDisplay: React.FC<BalancesDisplayProps> = ({
         fetchBalances();
         if (refreshInterval !== null) {
 
-        const intervalId = setInterval(fetchBalances, refreshInterval);
-        return () => clearInterval(intervalId);
+            const intervalId = setInterval(fetchBalances, refreshInterval);
+            return () => clearInterval(intervalId);
         }
     }, [connectionStatus, refreshInterval]);
 
@@ -71,12 +71,19 @@ export const BalancesDisplay: React.FC<BalancesDisplayProps> = ({
                         className="easya-balances-display__item"
                     >
                         <div className="easya-balances-display__currency">
-                            {balance.currency}
+                            {balance.nonStandard != "" ? balance.nonStandard : balance.currency}
                             {balance.issuer && (
                                 <span className="easya-balances-display__issuer">
                                     Issuer: {balance.issuer}
                                 </span>
-                            )}
+                            )
+                            }
+                            {balance.nonStandard != "" && (
+                                <span className="easya-balances-display__issuer">
+                                    Hex: {balance.currency}
+                                </span>
+                            )
+                            }
                         </div>
                         <div className="easya-balances-display__value">
                             {balance.value}
