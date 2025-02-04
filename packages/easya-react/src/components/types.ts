@@ -1,5 +1,5 @@
 import { EasyaSDK } from "../../../../src";
-import { Balance, NFT, TransactionResult } from "../../../../src/core/types";
+import { Balance, NFT, TokenIssuanceData, TransactionResult } from "../../../../src/core/types";
 
 
 export interface BlockchainValues {
@@ -9,19 +9,25 @@ export interface BlockchainValues {
   tokenSymbol: string;
   tokenSupply: string;
   nftName: string;
-  nftImage: string;
   nftDescription: string;
-  nftURI: any;
+  nftImage: string;
+  nftURI: string | null;
   nftTaxon: string;
   nftTransferFee: string;
   nftFlags: string;
-  selectedCurrency: string; 
-  // Trust line related values
+  selectedCurrency: string;
   currency: string;
   issuerAddress: string;
   trustLineLimit: string;
+  // New token issuance values
+  currencyCode: string;
+  amount: string;
+  transferRate: string;
+  tickSize: string;
+  domain: string;
+  requireDestTag: boolean;
+  disallowXRP: boolean;
 }
-
 
 
 export interface BlockchainContextType {
@@ -43,5 +49,6 @@ export interface BlockchainContextType {
   unsubscribeFromEvents: (eventName: string) => Promise<void>;
   createTrustLine: () => Promise<void>;
   getBalances: () => Promise<Balance[]>;
+  issueToken: () => Promise<void>;
   sdk: EasyaSDK | null;
 }

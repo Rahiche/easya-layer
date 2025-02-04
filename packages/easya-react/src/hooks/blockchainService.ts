@@ -1,6 +1,45 @@
 import { EasyaSDK } from '../../../../src';
-import { Balance, NFT, NFTConfig, TransactionResult } from '../../../../src/core/types';
+import { Balance, NFT, NFTConfig, TokenIssuanceData, TransactionResult } from '../../../../src/core/types';
 import { BlockchainValues } from '../components/types';
+
+
+export const issueToken = async (
+    sdk: EasyaSDK,
+    values: BlockchainValues,
+    setTransactionStatus: (status: string) => void
+): Promise<void> => {
+    if (!sdk || !sdk.isActive()) {
+        throw new Error('SDK not initialized or not connected');
+    }
+
+    try {
+        setTransactionStatus('Processing');
+
+        // Prepare token issuance parameters
+        const tokenParams = {
+            currencyCode: values.currencyCode,
+            amount: values.amount,
+            transferRate: parseFloat(values.transferRate),
+            tickSize: parseInt(values.tickSize),
+            ...(values.domain ? { domain: values.domain } : {}),
+            requireDestTag: values.requireDestTag,
+            disallowXRP: values.disallowXRP
+        };
+
+        // Issue the token using SDK
+        const result = await sdk.issueToken({
+            ...tokenParams,
+            domain: tokenParams.domain || ''  // Ensure domain is always a string
+        } as TokenIssuanceData);
+
+        setTransactionStatus('Success');
+
+    } catch (error) {
+        setTransactionStatus('Error');
+        console.error('Token issuance error:', error);
+        throw error;
+    }
+};
 
 export const getBalances = async (sdk: EasyaSDK): Promise<Balance[]> => {
     try {
@@ -13,7 +52,8 @@ export const getBalances = async (sdk: EasyaSDK): Promise<Balance[]> => {
             ? balances.map(balance => ({
                 currency: balance.currency || 'Native',
                 value: balance.value?.toString() || '0',
-                issuer: balance.issuer
+                issuer: balance.issuer,
+                nonStandard: balance.nonStandard,
             }))
             : [];
     } catch (error) {
