@@ -1,9 +1,10 @@
 import { dropsToXrp, xrpToDrops } from "xrpl";
-import { CurrencyTransactionConfig, TrustLineConfig } from "../../core/types";
+import { CurrencyTransactionConfig, TokenIssuanceData, TransactionResult, TrustLineConfig } from "../../core/types";
 import { Client, AccountLinesRequest, AccountLinesResponse } from 'xrpl';
+import { CurrencyCodeValidator } from "./currencyCodeValidator";
 
 
-export class XRPLUtils implements XRPLUtils {
+export class XRPLUtils {
     private client: Client;
 
     constructor(client: Client) {
@@ -82,15 +83,15 @@ export function validateTrustLineConfig(config: TrustLineConfig): void {
     if (!config) {
         throw new Error('Trust line configuration is required');
     }
-    
+
     if (!config.currency) {
         throw new Error('Currency is required for trust line');
     }
-    
+
     if (!config.issuer) {
         throw new Error('Issuer address is required for trust line');
     }
-    
+
     if (typeof config.limit !== 'string' && typeof config.limit !== 'number') {
         throw new Error('Trust line limit must be a valid number or string');
     }
@@ -100,19 +101,19 @@ export function validateCurrencyTransactionConfig(config: CurrencyTransactionCon
     if (!config) {
         throw new Error('Currency transaction configuration is required');
     }
-    
+
     // if (!config.to) {
     //     throw new Error('Recipient address is required');
     // }
-    
+
     if (!config.currency) {
         throw new Error('Currency code is required');
     }
-    
+
     if (!config.issuer) {
         throw new Error('Currency issuer address is required');
     }
-    
+
     if (!config.amount || isNaN(Number(config.amount))) {
         throw new Error('Valid amount is required');
     }

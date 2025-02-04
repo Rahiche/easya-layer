@@ -1,5 +1,5 @@
 import { BaseBlockchainSDK } from './BaseBlockchainSDK';
-import { Balance, CurrencyTransactionConfig, EasyaConfig, NFT, NFTConfig, TransactionConfig, TransactionResult } from './core/types';
+import { Balance, CurrencyTransactionConfig, EasyaConfig, NFT, NFTConfig, TokenIssuanceData, TransactionConfig, TransactionResult } from './core/types';
 import { ProviderFactory } from './providers/provider.factory';
 
 export class EasyaSDK extends BaseBlockchainSDK {
@@ -97,8 +97,14 @@ export class EasyaSDK extends BaseBlockchainSDK {
             return this.handleError('mint NFT', error);
         }
     }
-
-
+    async issueToken(config: TokenIssuanceData): Promise<TransactionResult> {
+        try {
+            this.ensureConnected();
+            return await this.provider.issueToken(config);
+        } catch (error) {
+            return this.handleError('issue NFT', error);
+        }
+    }
 
     async getBalances(): Promise<Balance[]> {
         try {

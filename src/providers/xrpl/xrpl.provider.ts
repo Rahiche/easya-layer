@@ -1,9 +1,10 @@
-import { Balance, BlockchainProvider, CurrencyTransactionConfig, NFT, NFTConfig, TokenConfig, TokenIssuanceResult, TransactionConfig, TransactionResult, TrustLineConfig, WalletAdapter, WalletInfo } from "../../core/types";
-import { AccountSet, Client, NFTokenCreateOffer, NFTokenMint, Payment, TrustSet, dropsToXrp, xrpToDrops } from "xrpl";
+import { Balance, BlockchainProvider, CurrencyTransactionConfig, NFT, NFTConfig, TokenConfig, TokenIssuanceData, TokenIssuanceResult, TransactionConfig, TransactionResult, TrustLineConfig, WalletAdapter, WalletInfo } from "../../core/types";
+import { AccountSetTfFlags, AccountSetAsfFlags, AccountSet, Client, NFTokenCreateOffer, NFTokenMint, Payment, TrustSet, dropsToXrp, xrpToDrops, convertHexToString } from "xrpl";
 import { WalletAdapterRegistry } from "../../wallets/WalletAdapterRegistry";
 import { CrossmarkAdapter } from "../../wallets/CrossmarkAdapter";
 import { GemWalletAdapter } from "../../wallets/GemWalletAdapter";
 import { XRPLUtils } from "./XRPLUtils";
+import { CurrencyCodeValidator, TrustSetHandler } from "./currencyCodeValidator";
 
 
 export class XRPLProvider implements BlockchainProvider {
@@ -30,6 +31,132 @@ export class XRPLProvider implements BlockchainProvider {
     xrplUtils(): XRPLUtils {
         return new XRPLUtils(this.connection);;
     }
+
+    async issueToken(config: TokenIssuanceData): Promise<TransactionResult> {
+        if (!this.connection || !this.connection.isConnected()) {
+            throw new Error('Not connected to XRPL');
+        }
+
+        if (!this.walletInfo?.address) {
+            throw new Error('Wallet not connected');
+        }
+
+        CurrencyCodeValidator.validateForIssuance(config);
+
+        try {
+            // Generate a new cold wallet
+            const coldWallet = await this.connection.fundWallet();
+            console.log('Generated cold wallet:', coldWallet.wallet.address);
+
+            // 1. Configure cold wallet settings
+            const coldSettingsTx: AccountSet = {
+                TransactionType: "AccountSet",
+                Account: coldWallet.wallet.address,
+                TransferRate: config.transferRate,
+                TickSize: config.tickSize,
+                Domain: "6578616D706C652E636F6D",
+                SetFlag: AccountSetAsfFlags.asfDefaultRipple,
+                Fee: "12",
+                Flags: (
+                    (config.disallowXRP ? AccountSetTfFlags.tfDisallowXRP : 0) |
+                    (config.requireDestTag ? AccountSetTfFlags.tfRequireDestTag : 0)
+                )
+            };
+
+            const networkUrl = XRPLProvider.NETWORKS[this.network as keyof typeof XRPLProvider.NETWORKS];
+            const coldClient = new Client(networkUrl)
+            await coldClient.connect();
+            try {
+                const accountInfo = await coldClient.request({
+                    command: 'account_info',
+                    account: coldWallet.wallet.address
+                });
+
+                // Add sequence to transaction
+                coldSettingsTx.Sequence = accountInfo.result.account_data.Sequence;
+
+                await coldClient.autofill(coldSettingsTx);
+                const { tx_blob: signed_tx_blob, hash } = coldWallet.wallet.sign(coldSettingsTx);
+                console.log('signed_tx_blob:', signed_tx_blob);
+                const result = await coldClient.submit(signed_tx_blob);
+                console.log('result:', result);
+            } catch (error) {
+                console.error(`Failed to sign transaction: ${error}`)
+            }
+
+
+            // if (coldSettingsResult.data.resp.result.meta.TransactionResult !== "tesSUCCESS") {
+            //     throw new Error(`Failed to configure cold wallet settings: ${coldSettingsResult.result.meta.TransactionResult}`);
+            // }
+
+
+            // 2. Create trust line from hot wallet to cold wallet
+            const limitAmount = TrustSetHandler.createLimitAmount(
+                config.currencyCode,
+                coldWallet.wallet.address,
+                config.amount
+            );
+
+            const trustSetTx: TrustSet = {
+                TransactionType: "TrustSet",
+                Account: this.walletInfo.address,  // Hot wallet
+                LimitAmount: limitAmount
+            };
+
+            const preparedTrustSet = await this.connection.autofill(trustSetTx);
+            const trustSetResult = await this.walletAdapter.signAndSubmit(preparedTrustSet);
+
+            console.log("trustSetResult:", trustSetResult);
+
+            // if (trustSetResult.data.resp.result.meta.TransactionResult !== "tesSUCCESS") {
+            //     throw new Error(`Failed to set trust line: ${trustSetResult.result.meta.TransactionResult}`);
+            // }
+
+            console.log("limitAmount.currency:", limitAmount.currency);
+
+            // 3. Issue tokens from cold wallet to hot wallet
+            const paymentTx: Payment = {
+                TransactionType: "Payment",
+                Account: coldWallet.wallet.address,
+                Destination: this.walletInfo.address,
+                Amount: {
+                    currency: limitAmount.currency,
+                    value: config.amount,
+                    issuer: coldWallet.wallet.address
+                }
+            };
+
+            console.log("paymentTx:", paymentTx);
+
+            const accountInfo = await coldClient.request({
+                command: 'account_info',
+                account: coldWallet.wallet.address
+            });
+
+            // Add sequence to transaction
+            paymentTx.Sequence = accountInfo.result.account_data.Sequence;
+
+
+            const a = await coldClient.autofill(paymentTx);
+            const { tx_blob: signed_tx_blob2, hash } = coldWallet.wallet.sign(a);
+            console.log('signed_tx_blob2:', signed_tx_blob2);
+            const result = await coldClient.submit(signed_tx_blob2);
+
+            // const preparedPayment = await this.connection.autofill(paymentTx);
+            // const signedPayment = coldWallet.wallet.sign(preparedPayment);
+            // const paymentResult = await this.connection.submitAndWait(signedPayment);
+            await coldClient.disconnect()
+
+            console.log("result:", result);
+            return {
+                hash: result.result.tx_blob,
+            };
+
+        } catch (error: any) {
+            throw new Error(`Token issuance failed: ${error.message || error}`);
+        }
+    }
+
 
     async isWalletInstalled(): Promise<boolean> {
         const maxRetries = 3;
@@ -513,15 +640,17 @@ export class XRPLProvider implements BlockchainProvider {
                 throw new Error('Currency and issuer are required');
             }
 
+            const limitAmount = TrustSetHandler.createLimitAmount(
+                config.currency,
+                config.issuer,
+                config.limit || "1000000000"
+            );
+
             // Create TrustSet transaction
             const trustSet: TrustSet = {
                 TransactionType: "TrustSet",
                 Account: this.walletInfo.address,
-                LimitAmount: {
-                    currency: config.currency,
-                    issuer: config.issuer,
-                    value: config.limit || "1000000000" // Default limit if not specified
-                }
+                LimitAmount: limitAmount
             };
 
             // Prepare and submit the transaction
@@ -569,10 +698,22 @@ export class XRPLProvider implements BlockchainProvider {
                 if (Array.isArray(lines)) {
                     for (const line of lines) {
                         if (line.balance !== '0') {
+                            let currency = line.currency;
+                            // Convert hex to ASCII if currency is longer than 3 characters
+                            let nonStandard = '';
+                            if (currency.length > 3) {
+                                nonStandard = CurrencyCodeValidator.convertFromHex(currency);
+                                nonStandard = nonStandard
+                                    .replace(/\u0000/g, '')
+                                    .trim();
+                                nonStandard = nonStandard.trim();
+                            }
+
                             balances.push({
-                                currency: line.currency,
+                                currency: currency,
                                 value: line.balance,
-                                issuer: line.account
+                                issuer: line.account,
+                                nonStandard: nonStandard,
                             });
                         }
                     }
@@ -584,12 +725,15 @@ export class XRPLProvider implements BlockchainProvider {
                 }
             }
 
+            console.log('Balances:', balances);
             return balances;
         } catch (error) {
             console.error('Error in getBalances:', error);
             throw error;
         }
     }
+
+
     validateAddress(address: string): boolean {
         // Basic XRP address validation
         const xrpAddressRegex = /^r[1-9A-HJ-NP-Za-km-z]{25,34}$/;
