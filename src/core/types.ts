@@ -90,11 +90,22 @@ export interface Balance {
     currency: string;
     value: string;
     issuer?: string;
+    nonStandard?: string;
+}
+
+export interface TokenIssuanceData {
+    currencyCode: string;
+    amount: string;
+    transferRate: number;
+    tickSize: number;
+    domain: string;
+    requireDestTag: boolean;
+    disallowXRP: boolean;
 }
 
 
 export interface BlockchainProvider {
-    xrplUtils():XRPLUtils;
+    xrplUtils(): XRPLUtils;
 
     // Connection Management
     connect(config?: ConnectionConfig): Promise<string>;
@@ -119,6 +130,7 @@ export interface BlockchainProvider {
     createTrustLine(config: TrustLineConfig): Promise<TransactionResult>;
     sendCurrency(config: CurrencyTransactionConfig): Promise<TransactionResult>;
     getBalances(address?: string): Promise<Balance[]>;
+    issueToken(config: TokenIssuanceData): Promise<TransactionResult>;
 
     // NFT Operations
     mintNFT(config: NFTConfig): Promise<TransactionResult>;
