@@ -21,6 +21,7 @@ const ComponentsContainer: React.FC<{ blockchainConfig: EasyaConfig }> = ({ bloc
                 <EasyaSDK.TransactionForm />
                 <EasyaSDK.TrustLineForm />
                 <EasyaSDK.BalancesDisplay />
+                <EasyaSDK.IssueTokenForm />
                 {/* <EasyaSDK.NFTMintingForm /> */}
                 {/* <EasyaSDK.NFTGallery /> */}
 
@@ -33,7 +34,7 @@ const App: React.FC = () => {
     const [blockchainConfig, setBlockchainConfig] = useState<EasyaConfig>({
         network: 'testnet',
         blockchain: 'xrpl',
-        wallet: 'gem',
+        wallet: 'crossmark',
     });
 
     const handleConfigChange = (newConfig: EasyaConfig) => {
