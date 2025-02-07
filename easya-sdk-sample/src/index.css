@@ -100,3 +100,78 @@ body {
         padding: 3rem;
     }
 }
+
+/* custom-connect-button */
+/* Modernized Connect Button Styles */
+.custom-connect-button .connect-button-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--easya-spacing-sm);
+}
+
+.custom-connect-button .connect-button {
+    width: 100%;
+    padding: var(--easya-spacing-md) var(--easya-spacing-lg); /* Increased padding for a more comfortable feel */
+    color: var(--easya-text);
+    border-radius: var(--easya-radius-md); /* Increased border-radius for a softer, modern look */
+    transition: background-color var(--easya-transition-base), box-shadow var(--easya-transition-base); /* Added transition for box-shadow */
+    border: none;
+    font-weight: 500; /* Slightly bolder font-weight for better readability */
+    cursor: pointer; /* Ensure cursor is pointer for buttons */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow for a bit of depth */
+}
+
+.custom-connect-button .connect-button:disabled {
+    opacity: 0.5; /* Reduced opacity for disabled state for a more modern look */
+    cursor: not-allowed;
+    box-shadow: none; /* Remove shadow for disabled state */
+}
+
+.custom-connect-button .connect-button:focus {
+    outline: 2px solid var(--easya-primary); /* Example focus outline, adjust color as needed */
+    outline-offset: -2px; /* Adjust offset for desired look */
+}
+
+.custom-connect-button .button-connect {
+    background-color: var(--easya-success);
+}
+
+.custom-connect-button .button-connect:hover:not(:disabled) {
+    background-color: var(--easya-success-hover);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Increased shadow on hover for more interactivity */
+}
+
+.custom-connect-button .button-disconnected {
+    background-color: var(--easya-error);
+}
+
+.custom-connect-button .button-disconnected:hover:not(:disabled) {
+    background-color: var(--easya-error-hover);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Increased shadow on hover for more interactivity */
+}
+
+.custom-connect-button .button-connecting {
+    background-color: var(--easya-warning);
+}
+
+.custom-connect-button .button-connecting:hover:not(:disabled) {
+    background-color: var(--easya-warning-hover);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Increased shadow on hover for more interactivity */
+}
+
+.custom-connect-button .button-disconnecting {
+    background-color: var(--easya-background-tertiary);
+    color: var(--easya-text-secondary); /* Adjusted text color for better contrast on tertiary background */
+}
+
+.custom-connect-button .button-disconnecting:hover:not(:disabled) {
+    background-color: var(--easya-surface-hover);
+    color: var(--easya-text); /* Revert text color to default on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Increased shadow on hover for more interactivity */
+}
+
+.custom-connect-button .status-text {
+    font-size: var(--easya-font-size-sm);
+    color: var(--easya-text-tertiary);
+    text-align: center; /* Centered status text for better alignment */
+}
