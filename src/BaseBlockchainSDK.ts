@@ -6,7 +6,7 @@ export abstract class BaseBlockchainSDK {
     protected currentAddress: string | null = null;
     
     constructor(
-        protected readonly config: EasyaConfig,
+        readonly config: EasyaConfig,
         protected readonly provider: BlockchainProvider
     ) {}
 

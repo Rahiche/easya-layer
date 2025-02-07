@@ -6,38 +6,38 @@ interface TransactionStatusProps {
     isLoading?: boolean;
 }
 
-export const TransactionStatus: React.FC<TransactionStatusProps> = ({ 
+export const TransactionStatus: React.FC<TransactionStatusProps> = ({
     status,
     isLoading = false
 }) => {
     const { sdk } = useBlockchain();
-    
+
     if (!status && !isLoading) {
         return null;
     }
 
     // Determine blockchain and network from SDK
-    const chain: 'xrpl' | 'aptos' = sdk?.config?.blockchain?.toLowerCase() as 'xrpl' | 'aptos' || 'xrpl';
+    const chain: 'xrpl' | 'aptos' = sdk?.getBlockchain()?.toLowerCase() as 'xrpl' | 'aptos' || 'xrpl';
     const isTestnet = sdk?.config?.network === 'testnet';
 
     // XRPL-specific regex patterns
     const xrplHashMatch = status?.match(/Hash: ([a-fA-F0-9]+)/);
     const xrplNftMatch = status?.match(/NFT minted successfully! (.*)/);
-    
+
     // Aptos-specific regex patterns
     const aptosHashMatch = status?.match(/Version: (\d+)/);
     const aptosNftMatch = status?.match(/Token minted: (0x[a-fA-F0-9]+)/);
-    
+
     // Determine which hash to use based on the chain
-    const hash = chain === 'xrpl' ? 
+    const hash = chain === 'xrpl' ?
         (xrplHashMatch ? xrplHashMatch[1] : null) :
         (aptosHashMatch ? aptosHashMatch[1] : null);
-    
+
     // Determine which NFT ID to use based on the chain
     const nftId = chain === 'xrpl' ?
         (xrplNftMatch ? xrplNftMatch[1] : null) :
         (aptosNftMatch ? aptosNftMatch[1] : null);
-    
+
     // Define explorer base URLs with network awareness
     const explorerUrls = {
         xrpl: {
@@ -61,17 +61,17 @@ export const TransactionStatus: React.FC<TransactionStatusProps> = ({
             }
         }
     };
-    
+
     // Get correct network type
     const network = isTestnet ? 'testnet' : 'mainnet';
-    
+
     // Construct appropriate explorer URLs based on chain and network
-    const explorerUrl = hash ? 
-        `${explorerUrls[chain][network].transaction}${hash}` : 
+    const explorerUrl = hash ?
+        `${explorerUrls[chain][network].transaction}${hash}` :
         null;
-        
-    const nftExplorerUrl = nftId ? 
-        `${explorerUrls[chain][network].nft}${nftId}` : 
+
+    const nftExplorerUrl = nftId ?
+        `${explorerUrls[chain][network].nft}${nftId}` :
         null;
 
     return (
@@ -86,7 +86,7 @@ export const TransactionStatus: React.FC<TransactionStatusProps> = ({
                     <div className="status-links">
                         {explorerUrl && (
                             <div className="explorer-link-container">
-                                <a 
+                                <a
                                     href={explorerUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -112,7 +112,7 @@ export const TransactionStatus: React.FC<TransactionStatusProps> = ({
                         )}
                         {nftExplorerUrl && (
                             <div className="explorer-link-container">
-                                <a 
+                                <a
                                     href={nftExplorerUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -137,9 +137,15 @@ export const TransactionStatus: React.FC<TransactionStatusProps> = ({
                             </div>
                         )}
                         {!explorerUrl && !nftExplorerUrl && (
-                            <div className="status-message">
-                                <span>No transaction data available</span>
-                            </div>
+                            status ? (
+                                <div className="status-message raw-status">
+                                    <span>Raw Status: {status}</span>
+                                </div>
+                            ) : (
+                                <div className="status-message">
+                                    <span>No transaction data available</span>
+                                </div>
+                            )
                         )}
                     </div>
                 )}
