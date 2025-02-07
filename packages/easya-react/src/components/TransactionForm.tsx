@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
 import { TransactionStatus } from './TransactionStatus';
 import { DEFAULT_SUPPORTED_CURRENCIES, SupportedCurrency } from '../utils/supported_currencies';
+import { Balance } from '../../../../src/core/types';
 
 const TransactionForm: React.FC = () => {
     const {
@@ -11,70 +12,68 @@ const TransactionForm: React.FC = () => {
         connectionStatus,
         transactionStatus,
         getBalance,
+        getBalances,
         getCurrencySymbol,
         sdk,
     } = useBlockchain();
 
-    const [selectedCurrencyData, setSelectedCurrencyData] = useState<SupportedCurrency | null>(null);
-    const [balances, setBalances] = useState<Record<string, string>>({});
+    const [selectedAsset, setSelectedAsset] = useState<Balance | SupportedCurrency | null>(null);
+    const [availableAssets, setAvailableAssets] = useState<(Balance | SupportedCurrency)[]>([]);
     const [error, setError] = useState<string>('');
-    const [supportedCurrencies, setSupportedCurrencies] = useState<SupportedCurrency[]>(DEFAULT_SUPPORTED_CURRENCIES);
     const [transactionError, setTransactionError] = useState<string>('');
 
     const isConnected = connectionStatus?.toLowerCase().includes('connected');
 
     useEffect(() => {
-        const fetchBalanceForCurrency = async (currencySymbol: string) => {
-            if (isConnected && currencySymbol) {
-                try {
-                    const balance = await getBalance();
-                    setBalances(prev => ({
-                        ...prev,
-                        [currencySymbol]: balance
-                    }));
-                } catch (err) {
-                    console.error(`Error fetching balance for ${currencySymbol}:`, err);
-                    setError(`Failed to fetch balance for ${currencySymbol}`);
-                }
+        const fetchAssets = async () => {
+            if (!isConnected) return;
+            
+            try {
+                const tokenBalances = await getBalances();
+                const allAssets = [...DEFAULT_SUPPORTED_CURRENCIES, ...tokenBalances];
+                setAvailableAssets(allAssets);
+            } catch (err) {
+                console.error('Error fetching balances:', err);
+                setError('Failed to fetch available assets');
             }
         };
 
-        if (selectedCurrencyData?.symbol) {
-            fetchBalanceForCurrency(selectedCurrencyData.symbol);
-        }
-    }, [isConnected, getBalance, selectedCurrencyData]);
+        fetchAssets();
+    }, [isConnected, getBalances]);
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const amount = e.target.value;
         updateValue('transactionAmount', amount);
-        setTransactionError(''); // Clear transaction error when amount changes
+        setTransactionError('');
 
-        if (selectedCurrencyData?.symbol) {
-            const currentBalance = balances[selectedCurrencyData.symbol] || '0';
-            if (parseFloat(amount) > parseFloat(currentBalance)) {
-                setError(`Insufficient balance. You have ${currentBalance} ${selectedCurrencyData.symbol} available.`);
+        if (selectedAsset) {
+            const balance = 'value' in selectedAsset ? selectedAsset.value : '0';
+            if (parseFloat(amount) > parseFloat(balance)) {
+                setError(`Insufficient balance. You have ${balance} available.`);
             } else {
                 setError('');
             }
         }
     };
 
-    const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const symbol = e.target.value;
-        const currency = supportedCurrencies.find(c => c.symbol === symbol);
+    const handleAssetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedId = e.target.value;
+        const asset = availableAssets.find(a => 
+            'symbol' in a ? a.symbol === selectedId : a.currency === selectedId
+        );
         
-        if (currency) {
-            setSelectedCurrencyData(currency);
-            updateValue('selectedCurrency', symbol);
+        if (asset) {
+            setSelectedAsset(asset);
+            updateValue('selectedCurrency', 'symbol' in asset ? asset.symbol : asset.currency);
             updateValue('transactionAmount', '');
             setError('');
-            setTransactionError(''); // Clear transaction error when currency changes
+            setTransactionError('');
         }
     };
 
     const handleSendTransaction = async () => {
         try {
-            setTransactionError(''); // Clear any previous transaction errors
+            setTransactionError('');
             await sendTransaction();
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -83,27 +82,30 @@ const TransactionForm: React.FC = () => {
     };
 
     if (!sdk) {
-        return (
-            <div className="p-4 text-center">
-                <h2 className="text-xl font-semibold mb-4">Not Supported</h2>
-                <p className="text-gray-600">
-                    Currently, this feature is not supported.
-                </p>
-            </div>
-        );
+        return <div className="p-4 text-center">
+            <h2 className="text-xl font-semibold mb-4">Not Supported</h2>
+            <p className="text-gray-600">Currently, this feature is not supported.</p>
+        </div>;
     }
 
-    const currentBalance = selectedCurrencyData?.symbol ? balances[selectedCurrencyData.symbol] : '0';
+    const getAssetDisplay = (asset: Balance | SupportedCurrency) => {
+        if ('symbol' in asset) {
+            return `${asset.name} (${asset.symbol})`;
+        }
+        return `${asset.nonStandard || asset.currency}${asset.issuer ? ` (${asset.issuer})` : ''}`;
+    };
 
-    // Combine error messages with transaction status
+    const getAssetId = (asset: Balance | SupportedCurrency) => 
+        'symbol' in asset ? asset.symbol : asset.currency;
+
     const displayStatus = error || transactionError || transactionStatus || '';
 
     return (
         <div className="transaction-form-container space-y-4">
             <div className="balance-display p-2 bg-gray-50 rounded-lg">
-                {selectedCurrencyData ? 
-                    `Balance: ${currentBalance} ${selectedCurrencyData.symbol}` : 
-                    'Select a currency to view balance'
+                {selectedAsset ? 
+                    `Balance: ${('value' in selectedAsset ? selectedAsset.value : '0')} ${getAssetDisplay(selectedAsset)}` : 
+                    'Select an asset to view balance'
                 }
             </div>
             
@@ -118,15 +120,15 @@ const TransactionForm: React.FC = () => {
             
             <div className="amount-input-container flex space-x-2">
                 <select
-                    value={selectedCurrencyData?.symbol || ''}
-                    onChange={handleCurrencyChange}
-                    className="currency-select flex-1 p-2 border rounded"
+                    value={selectedAsset ? getAssetId(selectedAsset) : ''}
+                    onChange={handleAssetChange}
+                    className="asset-select flex-1 p-2 border rounded"
                     disabled={!isConnected}
                 >
-                    <option value="">Select Currency</option>
-                    {supportedCurrencies.map((currency) => (
-                        <option key={currency.symbol} value={currency.symbol}>
-                            {currency.name} ({currency.symbol})
+                    <option value="">Select Asset</option>
+                    {availableAssets.map((asset) => (
+                        <option key={getAssetId(asset)} value={getAssetId(asset)}>
+                            {getAssetDisplay(asset)}
                         </option>
                     ))}
                 </select>
@@ -134,20 +136,17 @@ const TransactionForm: React.FC = () => {
                 <div className="relative flex-1">
                     <input
                         type="number"
-                        placeholder={selectedCurrencyData ? 
-                            `Amount in ${selectedCurrencyData.symbol}` : 
-                            'Select currency first'
-                        }
+                        placeholder={selectedAsset ? `Amount` : 'Select asset first'}
                         value={values.transactionAmount}
                         onChange={handleAmountChange}
                         className="transaction-input w-full p-2 border rounded"
-                        disabled={!isConnected || !selectedCurrencyData}
+                        disabled={!isConnected || !selectedAsset}
                         min="0"
                         step="any"
                     />
-                    {selectedCurrencyData && 
-                        <span className="currency-symbol absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
-                            {selectedCurrencyData.symbol}
+                    {selectedAsset && 
+                        <span className="asset-symbol absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
+                            {getAssetId(selectedAsset)}
                         </span>
                     }
                 </div>
@@ -156,16 +155,10 @@ const TransactionForm: React.FC = () => {
             <button
                 onClick={handleSendTransaction}
                 className="transaction-button w-full p-2 bg-blue-600 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
-                disabled={
-                    !isConnected || 
-                    !!error || 
-                    !values.recipientAddress || 
-                    !values.transactionAmount || 
-                    !selectedCurrencyData
-                }
+                disabled={!isConnected || !!error || !values.recipientAddress || !values.transactionAmount || !selectedAsset}
             >
-                {values.transactionAmount && selectedCurrencyData ? 
-                    `Send ${values.transactionAmount} ${selectedCurrencyData.symbol}` : 
+                {values.transactionAmount && selectedAsset ? 
+                    `Send ${values.transactionAmount} ${getAssetId(selectedAsset)}` : 
                     'Send Transaction'
                 }
             </button>
