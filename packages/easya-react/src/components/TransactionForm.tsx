@@ -144,11 +144,6 @@ const TransactionForm: React.FC = () => {
                         min="0"
                         step="any"
                     />
-                    {selectedAsset && 
-                        <span className="asset-symbol absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
-                            {getAssetId(selectedAsset)}
-                        </span>
-                    }
                 </div>
             </div>
 
