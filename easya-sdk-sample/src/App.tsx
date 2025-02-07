@@ -1,6 +1,8 @@
+// App.js
 import React, { useState, useCallback } from 'react';
 import * as EasyaSDK from '../../packages/easya-react/src';
 import { EasyaConfig } from '../../src/core/types';
+import { darkMode, lightMode } from './theme';
 
 const App: React.FC = () => {
     const [blockchainConfig] = useState<EasyaConfig>({
@@ -12,58 +14,13 @@ const App: React.FC = () => {
     const [activeTab, setActiveTab] = useState('sendToken');
     const [isDarkMode, setIsDarkMode] = useState(true); // State for dark mode
 
-    const handleTabClick = (tabName: string) => {
+    const handleTabClick = useCallback((tabName: string) => {
         setActiveTab(tabName);
-    };
+    }, []);
 
-    const toggleDarkMode = () => {
+    const toggleDarkMode = useCallback(() => {
         setIsDarkMode(!isDarkMode);
-    };
-
-    // Styles for light and dark mode
-    const lightMode = {
-        background: '#f9f9f9',
-        text: '#333',
-        appBar: '#fff',
-        tabActive: '#e0e0e0',
-        tabInactive: '#f0f0f0',
-        card: '#fff',
-        buttonPrimary: '#3b82f6',
-        buttonPrimaryText: '#fff',
-        buttonSecondary: '#ef4444',
-        buttonSecondaryText: '#fff',
-        buttonError: '#f97316',
-        buttonErrorText: '#fff',
-        tabTextActive: '#222',
-        tabTextInactive: '#555',
-        cardBackground: '#fff',
-        cardContentBackground: '#fff',
-        inputBackground: '#fff',
-        inputBorder: '#ccc',
-        inputTextColor: '#333',
-    };
-
-    const darkMode = {
-        background: '#121212',
-        text: '#eee',
-        appBar: '#1e1e1e',
-        tabActive: '#333',
-        tabInactive: '#272727',
-        card: '#222',
-        buttonPrimary: '#60a5fa', // Lighter blue for dark mode
-        buttonPrimaryText: '#fff',
-        buttonSecondary: '#f44336', // Slightly different red for dark mode
-        buttonSecondaryText: '#fff',
-        buttonError: '#ff9800', // Slightly different orange for dark mode
-        buttonErrorText: '#fff',
-        tabTextActive: '#eee',
-        tabTextInactive: '#bbb',
-        cardBackground: '#222',
-        cardContentBackground: '#222',
-        inputBackground: '#333',
-        inputBorder: '#555',
-        inputTextColor: '#eee',
-    };
+    }, [isDarkMode]);
 
     const currentMode = isDarkMode ? darkMode : lightMode;
 
@@ -78,13 +35,13 @@ const App: React.FC = () => {
             fontWeight: '500',
             border: 'none',
             cursor: 'pointer',
-            transition: 'background-color 0.3s ease', // Add transition for smoother hover effect
+            transition: 'background-color 0.3s ease',
         },
         connectButton: {
             backgroundColor: currentMode.buttonPrimary,
             color: currentMode.buttonPrimaryText,
-            '&:hover': { // Example of hover effect, adjust as needed
-                backgroundColor: lightMode.buttonPrimary, // Slightly lighter on hover for light mode, adjust darkMode as needed
+            '&:hover': {
+                backgroundColor: lightMode.buttonPrimary,
             },
         },
         disconnectButton: {
@@ -118,7 +75,7 @@ const App: React.FC = () => {
                 height: '100vh',
                 backgroundColor: currentMode.background,
                 color: currentMode.text,
-                fontFamily: 'Arial, sans-serif', // Consistent font
+                fontFamily: 'Arial, sans-serif',
             }}>
                 {/* App Bar */}
                 <div className="app-bar" style={{
@@ -141,7 +98,7 @@ const App: React.FC = () => {
                                 className="custom-address-display"
                             />
                         </div>
-                        <div className="connect-button-container" style={{ marginRight: '20px' }}> {/* Added margin for better spacing */}
+                        <div className="connect-button-container" style={{ marginRight: '20px' }}>
                             <EasyaSDK.ConnectButton
                                 className="custom-connect-button"
                             />
@@ -164,7 +121,7 @@ const App: React.FC = () => {
                             cursor: 'pointer',
                             color: activeTab === 'sendToken' ? currentMode.tabTextActive : currentMode.tabTextInactive,
                             fontWeight: activeTab === 'sendToken' ? '500' : 'normal',
-                            fontSize: '16px', // Consistent font size
+                            fontSize: '16px',
                             transition: 'background-color 0.3s ease',
                         }}
                         onClick={() => handleTabClick('sendToken')}
@@ -223,9 +180,9 @@ const App: React.FC = () => {
                 <div className="content-wrapper" style={{ padding: '30px', flex: 1, overflowY: 'auto' }}>
                     <div className="card" style={{
                         backgroundColor: currentMode.cardBackground,
-                        borderRadius: '12px', // More rounded corners for cards
-                        boxShadow: isDarkMode ? '0 2px 5px rgba(0,0,0,0.7)' : '0 2px 5px rgba(0,0,0,0.1)', // Slightly stronger shadow
-                        marginBottom: '30px', // More margin below cards
+                        borderRadius: '12px',
+                        boxShadow: isDarkMode ? '0 2px 5px rgba(0,0,0,0.7)' : '0 2px 5px rgba(0,0,0,0.1)',
+                        marginBottom: '30px',
                     }}>
                         <div className="card-content" style={{ padding: '30px', backgroundColor: currentMode.cardContentBackground }}>
                             <div className="content-section">
