@@ -30,7 +30,10 @@ const TransactionForm: React.FC = () => {
             
             try {
                 const tokenBalances = await getBalances();
-                const allAssets = [...DEFAULT_SUPPORTED_CURRENCIES, ...tokenBalances];
+                const positiveBalances = tokenBalances.filter(balance => 
+                    'value' in balance && parseFloat(balance.value) > 0
+                );
+                const allAssets = [...DEFAULT_SUPPORTED_CURRENCIES, ...positiveBalances];
                 setAvailableAssets(allAssets);
             } catch (err) {
                 console.error('Error fetching balances:', err);
@@ -64,7 +67,7 @@ const TransactionForm: React.FC = () => {
         
         if (asset) {
             setSelectedAsset(asset);
-            updateValue('selectedCurrency', 'symbol' in asset ? asset.symbol : asset.currency);
+            updateValue('selectedCurrency', 'symbol' in asset ? asset.name : asset.currency);
             updateValue('transactionAmount', '');
             setError('');
             setTransactionError('');
