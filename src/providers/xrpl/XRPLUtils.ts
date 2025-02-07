@@ -47,7 +47,10 @@ export class XRPLUtils {
     }
 
     async checkTrustLine(address: string, currency: string, issuer: string): Promise<boolean> {
+        console.log(`Checking trust line for - Address: ${address}, Currency: ${currency}, Issuer: ${issuer}`);
+
         if (!address || !currency || !issuer) {
+            console.log('Missing required parameters');
             throw new Error('Address, currency, and issuer are required parameters');
         }
 
@@ -57,19 +60,27 @@ export class XRPLUtils {
                 account: address,
                 peer: issuer,
             };
+            console.log('Sending account_lines request:', request);
 
             const response: AccountLinesResponse = await this.client.request(request);
-            
+            console.log('Received response:', response);
+
             // Check if there are any trust lines
             if (!response.result.lines || response.result.lines.length === 0) {
+                console.log('No trust lines found');
                 return false;
             }
 
-            // Look for a trust line matching the currency
-            return response.result.lines.some(line => 
-                line.currency === currency && 
+            const nonStdCurrencyCode = CurrencyCodeValidator.convertToHex(currency);
+            console.log(`nonStdCurrencyCode: ${nonStdCurrencyCode}`);
+
+            const hasTrustLine = response.result.lines.some(line =>
+                (line.currency === currency || line.currency === nonStdCurrencyCode) &&
                 (line.limit !== '0' || line.limit_peer !== '0')
             );
+            console.log(`Trust line found: ${hasTrustLine}`);
+            return hasTrustLine;
+
         } catch (error) {
             console.error('Error checking trust line:', error);
             throw new Error(`Failed to check trust line: ${error}`);

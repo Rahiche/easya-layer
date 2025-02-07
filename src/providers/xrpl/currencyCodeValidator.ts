@@ -41,21 +41,38 @@ export class CurrencyCodeValidator {
         return this.validateNonstandardCode(code);
     }
 
-     static convertToHex(code: string): string {
-        // Convert string to hex and pad to 40 characters
-        let hex = '';
-        for (let i = 0; i < code.length; i++) {
-            hex += code.charCodeAt(i).toString(16).padStart(2, '0');
-        }
+    // static convertToHex(code: string, Nonstandard: boolean ): string {
         
-        // Pad or truncate to exactly 40 characters
-        if (hex.length < this.NONSTANDARD_LENGTH) {
-            hex = hex.padEnd(this.NONSTANDARD_LENGTH, '0');
-        } else if (hex.length > this.NONSTANDARD_LENGTH) {
-            hex = hex.substring(0, this.NONSTANDARD_LENGTH);
+    // }
+    static convertToHex(code: string): string {
+        // Validate input
+        if (!code || code.length === 0) {
+            throw new Error('Currency code cannot be empty');
         }
-        
-        return hex.toUpperCase();
+
+        // Convert string to hex bytes
+        const encoder = new TextEncoder();
+        const bytes = encoder.encode(code);
+
+        // Create a buffer to hold our 20 bytes (160 bits)
+        const buffer = new Uint8Array(20);
+
+        // Set first byte to 0x02 to ensure it's not 0x00 (standard) or 0x01 (deprecated)
+        buffer[0] = 0x02;
+
+        // Copy the input bytes, starting from position 1
+        // Only copy up to 19 bytes to leave room for our prefix
+        for (let i = 0; i < Math.min(bytes.length, 19); i++) {
+            buffer[i + 1] = bytes[i];
+        }
+
+        // Convert to hex string
+        const hex = Array.from(buffer)
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('')
+            .toUpperCase();
+
+        return hex;
     }
 
     static convertFromHex(hex: string): string {
@@ -142,10 +159,10 @@ export class TrustSetHandler {
             formattedCurrency = currencyCode;
         } else {
             // For nonstandard codes, convert to hex if not already in hex format
-            formattedCurrency = currencyCode.length === CurrencyCodeValidator.NONSTANDARD_LENGTH 
-                ? currencyCode.toUpperCase()
-                : CurrencyCodeValidator.convertToHex(currencyCode);
+            formattedCurrency = CurrencyCodeValidator.convertToHex(currencyCode);
         }
+
+        console.log('Formatted currency:', formattedCurrency);
 
         return {
             currency: formattedCurrency,
