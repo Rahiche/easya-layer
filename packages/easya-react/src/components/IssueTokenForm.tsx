@@ -156,7 +156,7 @@ export const IssueTokenForm: React.FC = () => {
                 <h2 className="token-form-title">Issue Token</h2>
 
                 <div className="token-form-info">
-                    <p>This will configure your account as a token issuer and create your first tokens.</p>
+                    <p>This form will create tokens from a predefined issuer account, which is different from your current connected wallet.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="token-form">
