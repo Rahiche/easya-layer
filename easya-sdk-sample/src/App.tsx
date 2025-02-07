@@ -24,42 +24,6 @@ const App: React.FC = () => {
 
     const currentMode = isDarkMode ? darkMode : lightMode;
 
-    const customButtonStyles = {
-        container: {
-            margin: '0',
-        },
-        button: {
-            borderRadius: '8px',
-            padding: '10px 20px',
-            fontSize: '16px',
-            fontWeight: '500',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'background-color 0.3s ease',
-        },
-        connectButton: {
-            backgroundColor: currentMode.buttonPrimary,
-            color: currentMode.buttonPrimaryText,
-            '&:hover': {
-                backgroundColor: lightMode.buttonPrimary,
-            },
-        },
-        disconnectButton: {
-            backgroundColor: currentMode.buttonSecondary,
-            color: currentMode.buttonSecondaryText,
-            '&:hover': {
-                backgroundColor: lightMode.buttonSecondary,
-            },
-        },
-        errorButton: {
-            backgroundColor: currentMode.buttonError,
-            color: currentMode.buttonErrorText,
-            '&:hover': {
-                backgroundColor: lightMode.buttonError,
-            },
-        },
-    };
-
     const getConfigKey = useCallback((config: EasyaConfig) => {
         return `${config.network}-${config.blockchain}-${config.wallet}`;
     }, []);
