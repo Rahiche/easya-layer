@@ -17,6 +17,7 @@
     color: var(--easya-text);
     font-size: var(--easya-font-size-base);
     transition: var(--easya-transition-base);
+    margin-bottom: var(--easya-spacing-md); /* Add spacing below inputs */
 }
 
 .trustline-input:hover:not(:disabled) {
@@ -50,6 +51,7 @@
     font-weight: var(--easya-font-weight-semibold);
     font-size: var(--easya-font-size-base);
     transition: var(--easya-transition-base);
+    margin-top: var(--easya-spacing-md); /* Add spacing above button */
 }
 
 .trustline-button:hover:not(:disabled) {
