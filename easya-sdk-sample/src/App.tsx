@@ -1,8 +1,8 @@
 // App.js
 import React, { useState, useCallback } from 'react';
 import * as EasyaSDK from '../../packages/easya-react/src';
-import { EasyaConfig } from '../../src/core/types';
 import { darkMode, lightMode } from './theme';
+import { EasyaConfig } from 'easya-sdk-core/dist/core/types';
 
 const App: React.FC = () => {
     const [blockchainConfig] = useState<EasyaConfig>({
