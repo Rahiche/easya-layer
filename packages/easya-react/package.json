@@ -1,6 +1,6 @@
 {
   "name": "easya-react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -15,9 +15,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "easya-sdk-core": "^0.0.2",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "easya-sdk-core": "^0.0.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
@@ -28,5 +26,9 @@
     "react-dom": "^18.0.0",
     "tsup": "^7.0.0",
     "typescript": "^5.7.3"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
   }
 }
