@@ -9,23 +9,24 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --inject src/styles/inject.js",
+    "build": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --external react-dom --inject src/styles/inject.js",
     "dev": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --watch --inject src/styles/inject.js",
     "lint": "eslint src/**/*.ts*",
     "clean": "rm -rf dist"
   },
-  "peerDependencies": {
-    "react": "^18.0.0"
-  },
   "dependencies": {
-    "easya-sdk": "../easya-sdk"
+    "easya-sdk": "file:../easya-sdk",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
-    "tsup": "^7.0.0",
-    "typescript": "^5.0.0",
-    "react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
     "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.31"
+    "postcss": "^8.4.31",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "tsup": "^7.0.0",
+    "typescript": "^5.7.3"
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BlockchainNetwork, EasyaConfig, BlockchainPlatform, SupportedWallet } from '../../../../src/core/types';
+import { BlockchainNetwork, EasyaConfig, BlockchainPlatform, SupportedWallet } from '../../../easya-core/src/core/types';
 
 interface ConfigSelectorProps {
     currentConfig: EasyaConfig;

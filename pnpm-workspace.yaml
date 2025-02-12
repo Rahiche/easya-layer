@@ -1,4 +1,0 @@
-packages:
-  - '.'              # Root package (@easya/sdk)
-  - 'packages/*'     # For @easya/react
-  - 'easya-sdk-sample'

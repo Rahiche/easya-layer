@@ -17,7 +17,7 @@
     },
     "peerDependencies": {
       "react": "^18.0.0",
-      "easya-sdk": "../easya-sdk"
+      "easya-sdk": "../pacakges/easya-sdk"
     },
     "devDependencies": {
       "@vitejs/plugin-react": "^4.0.0",

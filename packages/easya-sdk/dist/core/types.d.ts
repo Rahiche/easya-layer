@@ -1,3 +1,4 @@
+import { XRPLUtils } from "../providers/xrpl/XRPLUtils";
 export type BlockchainNetwork = 'mainnet' | 'testnet';
 export type BlockchainPlatform = 'xrpl' | 'aptos';
 export type SupportedWallet = 'crossmark' | 'gem';
@@ -5,12 +6,6 @@ export interface EasyaConfig {
     network: BlockchainNetwork;
     blockchain: BlockchainPlatform;
     wallet: SupportedWallet;
-}
-export interface TokenConfig {
-    currency: string;
-    value: string;
-    issuer: string;
-    limit?: string;
 }
 export interface NFTConfig {
     URI: string;
@@ -42,8 +37,49 @@ export interface TransactionResult {
     status?: string;
     nftID?: string;
 }
+export interface TrustLineConfig {
+    currency: string;
+    issuer: string;
+    limit?: string;
+}
+export interface CurrencyTransactionConfig {
+    currency: string;
+    amount: string;
+    destination: string;
+    issuer: string;
+}
+export interface TokenConfig {
+    currency: string;
+    amount: string;
+    destination: string;
+    issuer: string;
+    destinationTag?: number;
+    transferRate?: number;
+    limit?: string;
+}
+export interface TokenIssuanceResult {
+    trustLineHash?: string;
+    issuanceHash: string;
+    amount: string;
+    currency: string;
+}
+export interface Balance {
+    currency: string;
+    value: string;
+    issuer?: string;
+    nonStandard?: string;
+}
+export interface TokenIssuanceData {
+    currencyCode: string;
+    amount: string;
+    transferRate: number;
+    tickSize: number;
+    domain: string;
+    requireDestTag: boolean;
+    disallowXRP: boolean;
+}
 export interface BlockchainProvider {
-    utils: any;
+    xrplUtils(): XRPLUtils;
     connect(config?: ConnectionConfig): Promise<string>;
     disconnect(): Promise<void>;
     isWalletInstalled(): Promise<boolean>;
@@ -57,10 +93,15 @@ export interface BlockchainProvider {
     mintToken(config: TokenConfig): Promise<TransactionResult>;
     transferToken(config: TransactionConfig): Promise<TransactionResult>;
     getTokenBalance(tokenId: string, address?: string): Promise<string>;
+    createTrustLine(config: TrustLineConfig): Promise<TransactionResult>;
+    sendCurrency(config: CurrencyTransactionConfig): Promise<TransactionResult>;
+    getBalances(address?: string): Promise<Balance[]>;
+    issueToken(config: TokenIssuanceData): Promise<TransactionResult>;
     mintNFT(config: NFTConfig): Promise<TransactionResult>;
     transferNFT(tokenId: string, to: string): Promise<TransactionResult>;
     getNFTMetadata(tokenId: string): Promise<Record<string, any>>;
     getNFTs(address?: string): Promise<Array<NFT>>;
+    issueFungibleToken(config: TokenConfig): Promise<TokenIssuanceResult>;
     getNetwork(): string;
     isConnected(): boolean;
     getBlockHeight(): Promise<number>;
