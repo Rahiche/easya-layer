@@ -1,6 +1,6 @@
 {
   "name": "easya-sdk-core",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Official SDK for Easya API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,7 +32,7 @@
     "ts-jest": "^29.2.5"
   },
   "dependencies": {
-    "@aptos-labs/ts-sdk": "^1.33.1",
+    "@aptos-labs/ts-sdk": "^1.35.0",
     "@crossmarkio/sdk": "^0.4.0",
     "@gemwallet/api": "^3.8.0",
     "aptos": "^1.21.0",
