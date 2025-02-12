@@ -5,8 +5,10 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "style": "dist/styles/index.css",
   "files": [
-    "dist"
+    "dist",
+    "src/**/*.css"
   ],
   "scripts": {
     "build": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --external react-dom --inject src/styles/inject.js",

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import * as EasyaSDK from '../../packages/easya-react/src';
 import { EasyaConfig } from 'easya-sdk-core/dist/core/types';
+import { ConfigSelector, EventDisplay, AddressDisplay, BalanceDisplay, BalancesDisplay, BlockchainProvider, ConnectButton, IssueTokenForm, TransactionForm, TrustLineForm } from 'easya-react';
 
 const ComponentsContainer: React.FC<{ blockchainConfig: EasyaConfig }> = ({ blockchainConfig }) => {
     // Create a unique key based on the config
@@ -9,24 +9,24 @@ const ComponentsContainer: React.FC<{ blockchainConfig: EasyaConfig }> = ({ bloc
     }, []);
 
     return (
-        <EasyaSDK.BlockchainProvider
+        <BlockchainProvider
             config={blockchainConfig}
             key={getConfigKey(blockchainConfig)}
         >
             <div className="components-container">
-                <EasyaSDK.ConnectButton />
-                <EasyaSDK.EventDisplay />
-                <EasyaSDK.BalanceDisplay />
-                <EasyaSDK.AddressDisplay />
-                <EasyaSDK.TransactionForm />
-                <EasyaSDK.TrustLineForm />
-                <EasyaSDK.BalancesDisplay />
-                <EasyaSDK.IssueTokenForm />
+                <ConnectButton />
+                <EventDisplay />
+                <BalanceDisplay />
+                <AddressDisplay />
+                <TransactionForm />
+                <TrustLineForm />
+                <BalancesDisplay />
+                <IssueTokenForm />
                 {/* <EasyaSDK.NFTMintingForm /> */}
                 {/* <EasyaSDK.NFTGallery /> */}
 
             </div>
-        </EasyaSDK.BlockchainProvider>
+        </BlockchainProvider>
     );
 };
 
@@ -48,7 +48,7 @@ const App: React.FC = () => {
                     <div className="card-content">
                         <div className="content-section">
                             <h1 className="title">EasyaSDK Demo</h1>
-                            <EasyaSDK.ConfigSelector
+                            <ConfigSelector
                                 currentConfig={blockchainConfig}
                                 onConfigChange={handleConfigChange}
                             />

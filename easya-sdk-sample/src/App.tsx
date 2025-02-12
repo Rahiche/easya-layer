@@ -1,8 +1,7 @@
-// App.js
 import React, { useState, useCallback } from 'react';
-import * as EasyaSDK from '../../packages/easya-react/src';
 import { darkMode, lightMode } from './theme';
 import { EasyaConfig } from 'easya-sdk-core/dist/core/types';
+import { AddressDisplay, BalanceDisplay, BalancesDisplay, BlockchainProvider, ConnectButton, IssueTokenForm, TransactionForm, TrustLineForm } from 'easya-react';
 
 const App: React.FC = () => {
     const [blockchainConfig] = useState<EasyaConfig>({
@@ -29,7 +28,7 @@ const App: React.FC = () => {
     }, []);
 
     return (
-        <EasyaSDK.BlockchainProvider
+        <BlockchainProvider
             config={blockchainConfig}
             key={getConfigKey(blockchainConfig)}
         >
@@ -55,15 +54,15 @@ const App: React.FC = () => {
                     </div>
                     <div className="app-bar-right" style={{ display: 'flex', alignItems: 'center' }}>
                         <div style={{ marginRight: '25px', fontSize: '16px' }}>
-                            <EasyaSDK.BalanceDisplay />
+                            <BalanceDisplay />
                         </div>
                         <div style={{ marginRight: '30px', fontSize: '16px' }}>
-                            <EasyaSDK.AddressDisplay
+                            <AddressDisplay
                                 className="custom-address-display"
                             />
                         </div>
                         <div className="connect-button-container" style={{ marginRight: '20px' }}>
-                            <EasyaSDK.ConnectButton
+                            <ConnectButton
                                 className="custom-connect-button"
                             />
                         </div>
@@ -154,23 +153,23 @@ const App: React.FC = () => {
                                 {activeTab === 'sendToken' && (
                                     <>
                                         {/* Balance and Address are now in AppBar */}
-                                        <EasyaSDK.TransactionForm
+                                        <TransactionForm
                                         />
                                     </>
                                 )}
                                 {activeTab === 'issueToken' && (
-                                    <EasyaSDK.IssueTokenForm
+                                    <IssueTokenForm
 
                                     />
                                 )}
                                 {activeTab === 'trustLines' && (
-                                    <EasyaSDK.TrustLineForm
+                                    <TrustLineForm
                                     />
                                 )}
                                 {/* ADD BALANCE DISPLAY HERE */}
                                 {activeTab === 'tokenBalances' && (
                                     <>
-                                        <EasyaSDK.BalancesDisplay />
+                                        <BalancesDisplay />
                                     </>
                                 )}
                             </div>
@@ -178,7 +177,7 @@ const App: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </EasyaSDK.BlockchainProvider>
+        </BlockchainProvider>
     );
 };
 
