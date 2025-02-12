@@ -3,8 +3,8 @@ name: Publish Package to NPM
 on:
   push:
     tags:
-      # - 'easya-react@*'
-      # - 'easya-sdk@*'
+      - 'easya-react@*'
+      - 'easya-sdk@*'
       - 'raouf-test-package@*'
 
 jobs:
