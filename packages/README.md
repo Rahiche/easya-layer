@@ -7,3 +7,8 @@ git tag easya-sdk@0.0.1 && git push origin easya-sdk@0.0.1
 git tag easya-react@0.0.1 && git push origin easya-react@0.0.1
 
 
+remove a tag
+
+git tag -d raouf-test-package@0.0.1 && git push origin --delete tag raouf-test-package@0.0.1
+git tag -d easya-sdk@0.0.1 && git push origin --delete tag easya-sdk@0.0.1
+git tag -d easya-react@0.0.1 && git push origin --delete tag easya-react@0.0.1

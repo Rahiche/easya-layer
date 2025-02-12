@@ -1,6 +1,6 @@
 {
   "name": "easya-react",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": false,
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -15,7 +15,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "easya-sdk": "file:../easya-sdk",
+    "easya-sdk": "^1.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
