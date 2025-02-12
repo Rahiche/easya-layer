@@ -1,6 +1,5 @@
 // BlockchainContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { EasyaSDK } from '../../../easya-sdk/src';
 import { BlockchainContextType, BlockchainValues } from '../components/types';
 import {
     mintNFT,
@@ -15,7 +14,8 @@ import {
     getBalances,
     issueToken
 } from './blockchainService';
-import { ConnectionConfig, EasyaConfig } from '../../../easya-sdk/src/core/types';
+import { EasyaConfig } from 'easya-sdk-core/dist/core/types';
+import { EasyaSDK } from 'easya-sdk-core';
 
 const BlockchainContext = createContext<BlockchainContextType | null>(null);
 

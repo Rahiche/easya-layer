@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
-import { Balance } from '../../../easya-core/src/core/types';
+import { Balance } from 'easya-sdk-core/dist/core/types';
 
 
 interface BalancesDisplayProps {

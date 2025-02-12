@@ -1,5 +1,5 @@
+import { BlockchainNetwork, EasyaConfig, BlockchainPlatform, SupportedWallet  } from 'easya-sdk-core/dist/core/types';
 import React, { useState } from 'react';
-import { BlockchainNetwork, EasyaConfig, BlockchainPlatform, SupportedWallet } from '../../../easya-core/src/core/types';
 
 interface ConfigSelectorProps {
     currentConfig: EasyaConfig;

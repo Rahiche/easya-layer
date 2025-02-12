@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
-import { TransactionStatus } from './TransactionStatus';
 
 const TrustLineForm: React.FC = () => {
     const {

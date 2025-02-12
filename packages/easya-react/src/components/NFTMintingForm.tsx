@@ -216,7 +216,7 @@ export const NFTMintingForm: React.FC<NFTMintingFormProps> = ({ config = {} }) =
         <FormField
           id="nftURI"
           type="text"
-          value={values.nftURI}
+          value={values.nftURI || ''}
           onChange={value => updateValue('nftURI', value)}
           config={finalConfig.nftURI}
         />
