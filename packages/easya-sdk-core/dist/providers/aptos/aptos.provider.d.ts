@@ -6,7 +6,6 @@ export interface AptosBlockchainProvider extends BlockchainProvider {
 }
 export declare class AptosProvider implements AptosBlockchainProvider {
     private wallet;
-    private client;
     private network;
     private aptos;
     private static readonly NETWORKS;

@@ -1,4 +1,3 @@
-import { AptosClient } from "aptos";
 import { Aptos, AptosConfig, NetworkToNetworkName } from '@aptos-labs/ts-sdk';
 import { Balance, BlockchainProvider, CurrencyTransactionConfig, NFT, NFTConfig, TokenConfig, TokenIssuanceData, TokenIssuanceResult, TransactionConfig, TransactionResult, TrustLineConfig, WalletInfo } from "../../core/types";
 import { aptosUtils, AptosUtils } from "./AptosUtils";
@@ -10,7 +9,6 @@ export interface AptosBlockchainProvider extends BlockchainProvider {
 
 export class AptosProvider implements AptosBlockchainProvider {
     private wallet: any;
-    private client: AptosClient;
     private network: string;
     private aptos: Aptos;
 
@@ -32,7 +30,6 @@ export class AptosProvider implements AptosBlockchainProvider {
         const networkValue = NetworkToNetworkName[network];
         const config = new AptosConfig({ network: networkValue });
         this.aptos = new Aptos(config);
-        this.client = new AptosClient(nodeUrl);
     }
     xrplUtils(): XRPLUtils {
         throw new Error("Method not implemented.");
@@ -188,7 +185,6 @@ export class AptosProvider implements AptosBlockchainProvider {
             };
 
             const pendingTransaction = await (window as any).aptos.signAndSubmitTransaction(transaction);
-            const txn = await this.client.waitForTransactionWithResult(pendingTransaction.hash);
 
             return {
                 hash: pendingTransaction.hash
@@ -330,7 +326,6 @@ export class AptosProvider implements AptosBlockchainProvider {
             };
 
             const pendingTransaction = await (window as any).aptos.signAndSubmitTransaction(transaction);
-            const txn = await this.client.waitForTransactionWithResult(pendingTransaction.hash);
 
             return {
                 hash: pendingTransaction.hash
@@ -347,7 +342,7 @@ export class AptosProvider implements AptosBlockchainProvider {
                 throw new Error('No address provided and no wallet connected');
             }
 
-            const resources = await this.client.getAccountResources(targetAddress);
+            const resources = await this.aptos.getAccountResources(targetAddress);
             const accountResource = resources.find(
                 (r) => r.type === "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>"
             );

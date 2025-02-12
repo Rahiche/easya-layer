@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AptosProvider = void 0;
-const aptos_1 = require("aptos");
 const ts_sdk_1 = require("@aptos-labs/ts-sdk");
 const AptosUtils_1 = require("./AptosUtils");
 class AptosProvider {
@@ -15,7 +14,6 @@ class AptosProvider {
         const networkValue = ts_sdk_1.NetworkToNetworkName[network];
         const config = new ts_sdk_1.AptosConfig({ network: networkValue });
         this.aptos = new ts_sdk_1.Aptos(config);
-        this.client = new aptos_1.AptosClient(nodeUrl);
     }
     xrplUtils() {
         throw new Error("Method not implemented.");
@@ -147,7 +145,6 @@ class AptosProvider {
                 type_arguments: ['0x1::aptos_coin::AptosCoin'],
             };
             const pendingTransaction = await window.aptos.signAndSubmitTransaction(transaction);
-            const txn = await this.client.waitForTransactionWithResult(pendingTransaction.hash);
             return {
                 hash: pendingTransaction.hash
             };
@@ -275,7 +272,6 @@ class AptosProvider {
                 type_arguments: [],
             };
             const pendingTransaction = await window.aptos.signAndSubmitTransaction(transaction);
-            const txn = await this.client.waitForTransactionWithResult(pendingTransaction.hash);
             return {
                 hash: pendingTransaction.hash
             };
@@ -291,7 +287,7 @@ class AptosProvider {
             if (!targetAddress) {
                 throw new Error('No address provided and no wallet connected');
             }
-            const resources = await this.client.getAccountResources(targetAddress);
+            const resources = await this.aptos.getAccountResources(targetAddress);
             const accountResource = resources.find((r) => r.type === "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
             if (!accountResource) {
                 return 0;
