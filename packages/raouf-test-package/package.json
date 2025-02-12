@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "main": "index.js",
   "scripts": {
-          "test": "jest"
+    "test": "jest",
+    "build": "echo \"No build required\" && exit 0",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "jest": "^27.0.0"
