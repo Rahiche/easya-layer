@@ -27,6 +27,9 @@ export interface BlockchainValues {
   domain: string;
   requireDestTag: boolean;
   disallowXRP: boolean;
+  generateColdWallet: boolean;
+  coldWalletAddress?: string;
+  coldWalletSecret?: string;
 }
 
 export enum ConnectionStatus {

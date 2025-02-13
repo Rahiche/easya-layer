@@ -44,7 +44,8 @@ const initialValues: BlockchainValues = {
     tickSize: '5',
     domain: '',
     requireDestTag: false,
-    disallowXRP: false
+    disallowXRP: false,
+    generateColdWallet: true
 };
 
 export const BlockchainProvider: React.FC<{

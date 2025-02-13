@@ -15,7 +15,6 @@ export const issueToken = async (
     try {
         setTransactionStatus('Processing');
 
-        // Prepare token issuance parameters
         const tokenParams = {
             currencyCode: values.currencyCode,
             amount: values.amount,
@@ -23,15 +22,15 @@ export const issueToken = async (
             tickSize: parseInt(values.tickSize),
             ...(values.domain ? { domain: values.domain } : {}),
             requireDestTag: values.requireDestTag,
-            disallowXRP: values.disallowXRP
+            disallowXRP: values.disallowXRP,
+            generateColdWallet: values.generateColdWallet,
+            ...((!values.generateColdWallet && values.coldWalletAddress) ? {
+                coldWalletAddress: values.coldWalletAddress,
+                coldWalletSecret: values.coldWalletSecret
+            } : {})
         };
 
-        // Issue the token using SDK
-        const result = await sdk.issueToken({
-            ...tokenParams,
-            domain: tokenParams.domain || ''  // Ensure domain is always a string
-        } as TokenIssuanceData);
-
+        await sdk.issueToken(tokenParams as TokenIssuanceData);
         setTransactionStatus('Success');
 
     } catch (error) {

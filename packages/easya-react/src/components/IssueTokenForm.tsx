@@ -17,13 +17,29 @@ interface TokenFormConfig {
     domain: FieldConfig;
     requireDestTag: FieldConfig;
     disallowXRP: FieldConfig;
-}
-
-interface TokenIssuanceFormProps {
-    className?: string;
+    generateColdWallet: FieldConfig;
+    coldWalletAddress: FieldConfig;
+    coldWalletSecret: FieldConfig;
 }
 
 const defaultConfig: TokenFormConfig = {
+    generateColdWallet: {
+        show: true,
+        required: false,
+        label: 'Generate Cold Wallet'
+    },
+    coldWalletAddress: {
+        show: true,
+        required: true,
+        label: 'Cold Wallet Address:',
+        placeholder: 'Enter cold wallet address'
+    },
+    coldWalletSecret: {
+        show: true,
+        required: true,
+        label: 'Cold Wallet Secret:',
+        placeholder: 'Enter cold wallet secret'
+    },
     currencyCode: {
         show: true,
         required: true,
@@ -37,30 +53,30 @@ const defaultConfig: TokenFormConfig = {
         placeholder: '1000000'
     },
     transferRate: {
-        show: true,
+        show: false,
         required: false,
         label: 'Transfer Fee (0-1%):',
         placeholder: '0'
     },
     tickSize: {
-        show: true,
+        show: false,
         required: false,
         label: 'Tick Size (0-15):',
         placeholder: '5'
     },
     domain: {
-        show: true,
+        show: false,
         required: false,
         label: 'Domain:',
         placeholder: 'example.com'
     },
     requireDestTag: {
-        show: true,
+        show: false,
         required: false,
         label: 'Require Destination Tags:'
     },
     disallowXRP: {
-        show: true,
+        show: false,
         required: false,
         label: 'Disallow XRP:'
     }
@@ -129,7 +145,19 @@ export const IssueTokenForm: React.FC = () => {
 
     const handleChange = (field: keyof BlockchainValues) => (value: any) => {
         updateValue(field, value);
+
+        // Toggle visibility of cold wallet fields based on generateColdWallet value
+        if (field === 'generateColdWallet') {
+            const coldWalletFields = ['coldWalletAddress', 'coldWalletSecret'];
+            coldWalletFields.forEach(fieldName => {
+                const element = document.getElementById(fieldName);
+                if (element) {
+                    element.closest('.form-field')?.classList.toggle('hidden', value);
+                }
+            });
+        }
     };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -139,7 +167,7 @@ export const IssueTokenForm: React.FC = () => {
     };
 
     const isFormValid = useMemo(() => {
-        return Boolean(
+        const baseValidation = Boolean(
             values.currencyCode &&
             values.amount &&
             Number(values.amount) > 0 &&
@@ -148,6 +176,16 @@ export const IssueTokenForm: React.FC = () => {
             Number(values.tickSize) >= 0 &&
             Number(values.tickSize) <= 15
         );
+
+        // Add cold wallet validation when not generating
+        if (!values.generateColdWallet) {
+            return baseValidation && Boolean(
+                values.coldWalletAddress &&
+                values.coldWalletSecret
+            );
+        }
+
+        return baseValidation;
     }, [values]);
 
     return (
@@ -155,11 +193,35 @@ export const IssueTokenForm: React.FC = () => {
             <div className="token-form-inner">
                 <h2 className="token-form-title">Issue Token</h2>
 
-                <div className="token-form-info">
-                    <p>This form will create tokens from a predefined issuer account, which is different from your current connected wallet.</p>
-                </div>
 
                 <form onSubmit={handleSubmit} className="token-form">
+                    <FormField
+                        id="generateColdWallet"
+                        type="checkbox"
+                        value={values.generateColdWallet}
+                        onChange={handleChange('generateColdWallet')}
+                        config={defaultConfig.generateColdWallet}
+                    />
+
+                    {!values.generateColdWallet && (
+                        <>
+                            <FormField
+                                id="coldWalletAddress"
+                                type="text"
+                                value={values.coldWalletAddress || ''}
+                                onChange={handleChange('coldWalletAddress')}
+                                config={defaultConfig.coldWalletAddress}
+                            />
+
+                            <FormField
+                                id="coldWalletSecret"
+                                type="text"
+                                value={values.coldWalletSecret || ''}
+                                onChange={handleChange('coldWalletSecret')}
+                                config={defaultConfig.coldWalletSecret}
+                            />
+                        </>
+                    )}
                     <FormField
                         id="currencyCode"
                         type="text"
