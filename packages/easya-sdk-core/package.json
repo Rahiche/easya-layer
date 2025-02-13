@@ -1,7 +1,7 @@
 {
-  "name": "easya-sdk-core",
-  "version": "0.0.5",
-  "description": "Official SDK for Easya API",
+  "name": "@easya/layer-js",
+  "version": "0.0.1",
+  "description": "An abstract layer for common blockchain APIs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -21,6 +21,9 @@
   ],
   "author": "",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^8.19.1",

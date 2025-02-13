@@ -1,6 +1,6 @@
 {
-  "name": "easya-react",
-  "version": "0.0.7",
+  "name": "@easya/layer-ui-react",
+  "version": "0.0.1",
   "private": false,
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -16,8 +16,11 @@
     "lint": "eslint src/**/*.ts*",
     "clean": "rm -rf dist"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "easya-sdk-core": "^0.0.5"
+    "@easya/layer-js": "^0.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
