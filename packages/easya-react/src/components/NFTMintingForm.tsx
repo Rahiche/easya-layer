@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
 import TransactionStatus from './TransactionStatus';
+import { ConnectionStatus } from './types';
 
 interface FieldConfig {
   show: boolean;
@@ -154,7 +155,7 @@ export const NFTMintingForm: React.FC<NFTMintingFormProps> = ({ config = {} }) =
     await mintNFT();
   };
 
-  const isConnected = connectionStatus === 'Connected';
+  const isConnected = connectionStatus === ConnectionStatus.CONNECTED;
 
   const isMetadataComplete = useMemo(() => {
     return Boolean(

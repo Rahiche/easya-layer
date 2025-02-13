@@ -1,5 +1,6 @@
 import React from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
+import { ConnectionStatus } from './types';
 
 interface MintNFTButtonProps {
   className?: string;
@@ -14,7 +15,7 @@ const MintNFTButton: React.FC<MintNFTButtonProps> = ({ className = '' }) => {
     mintNFT
   } = useBlockchain();
 
-  const isConnected = connectionStatus === 'Connected';
+  const isConnected = connectionStatus === ConnectionStatus.CONNECTED;
   const isMinting = transactionStatus === 'Minting NFT...';
 
   const getButtonColor = (): string => {

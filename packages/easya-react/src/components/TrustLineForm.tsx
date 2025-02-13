@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
+import { ConnectionStatus } from './types';
 
 const TrustLineForm: React.FC = () => {
     const {
@@ -11,7 +12,7 @@ const TrustLineForm: React.FC = () => {
     } = useBlockchain();
 
     const [error, setError] = useState<string>('');
-    const isConnected = connectionStatus?.toLowerCase().includes('connected');
+    const isConnected = connectionStatus === ConnectionStatus.CONNECTED;
 
     const handleLimitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const limit = e.target.value;

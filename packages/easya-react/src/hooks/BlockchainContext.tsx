@@ -1,6 +1,6 @@
 // BlockchainContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { BlockchainContextType, BlockchainValues } from '../components/types';
+import { BlockchainContextType, BlockchainValues, ConnectionStatus } from '../components/types';
 import {
     mintNFT,
     sendTransaction,
@@ -51,7 +51,7 @@ export const BlockchainProvider: React.FC<{
     config: EasyaConfig;
     children: ReactNode;
 }> = ({ config, children }) => {
-    const [connectionStatus, setConnectionStatus] = useState<string>('Not Connected');
+    const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(ConnectionStatus.DISCONNECTED);
     const [sdk, setSdk] = useState<EasyaSDK>(() => new EasyaSDK(config));
     const [transactionStatus, setTransactionStatus] = useState<string>('');
     const [values, setValues] = useState<BlockchainValues>(initialValues);
@@ -72,7 +72,7 @@ export const BlockchainProvider: React.FC<{
         cleanup();
 
         // Reset all state
-        setConnectionStatus('Not Connected');
+        setConnectionStatus(ConnectionStatus.DISCONNECTED);
         setTransactionStatus('');
         setValues(initialValues);
 
@@ -87,35 +87,34 @@ export const BlockchainProvider: React.FC<{
     const connectToBlockchain = async (): Promise<boolean> => {
         if (!sdk) return false;
 
-        setConnectionStatus('Initialized');
         try {
-            setConnectionStatus('Connecting...');
+            setConnectionStatus(ConnectionStatus.CONNECTING);
             const result = await sdk.connect();
-            setConnectionStatus('Connected');
+            setConnectionStatus(ConnectionStatus.CONNECTED);
             return true;
         } catch (error) {
-            setConnectionStatus(`Connection failed: ${error}`);
+            setConnectionStatus(ConnectionStatus.FIALED);
             return false;
         }
     };
 
     const disconnectFromBlockchain = async (): Promise<boolean> => {
         if (!sdk) {
-            setConnectionStatus('Not Connected');
+            setConnectionStatus(ConnectionStatus.DISCONNECTED);
             return true;
         }
 
         try {
-            setConnectionStatus('Disconnecting...');
+            setConnectionStatus(ConnectionStatus.DISCONNECTING);
             if (typeof sdk.disconnect === 'function') {
                 await sdk.disconnect();
             }
-            setConnectionStatus('Not Connected');
+            setConnectionStatus(ConnectionStatus.DISCONNECTED);
             setTransactionStatus('');
             setValues(initialValues);
             return true;
         } catch (error) {
-            setConnectionStatus(`Disconnect failed: ${error}`);
+            setConnectionStatus(ConnectionStatus.FIALED);
             return false;
         }
     };

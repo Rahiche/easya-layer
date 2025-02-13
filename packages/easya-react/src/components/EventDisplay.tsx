@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
+import { ConnectionStatus } from './types';
 
 interface EventMessage {
     timestamp: number;
@@ -65,7 +66,7 @@ const EventDisplay: React.FC = () => {
         }
     };
 
-    if (connectionStatus !== 'Connected') {
+    if (connectionStatus !== ConnectionStatus.CONNECTED) {
         return (
             <div className="p-4 bg-gray-100 rounded">
                 <p className="text-gray-600">Please connect to the blockchain to view events.</p>

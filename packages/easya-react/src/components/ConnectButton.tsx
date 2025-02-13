@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
+import { ConnectionStatus } from './types';
 
 interface ConnectButtonProps {
   className?: string;
@@ -17,9 +18,9 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ className = '' }) => {
   const [isWalletInstalled, setIsWalletInstalled] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const isConnecting = connectionStatus === 'Connecting...';
-  const isDisconnecting = connectionStatus === 'Disconnecting...';
-  const isConnected = connectionStatus === 'Connected';
+  const isConnecting = connectionStatus === ConnectionStatus.CONNECTING;
+  const isDisconnecting = connectionStatus === ConnectionStatus.DISCONNECTING;
+  const isConnected = connectionStatus === ConnectionStatus.CONNECTED;
 
   useEffect(() => {
     const checkWallet = async () => {

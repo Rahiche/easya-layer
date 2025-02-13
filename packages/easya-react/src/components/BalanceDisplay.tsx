@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
+import { ConnectionStatus } from './types';
 
 interface BalanceDisplayProps {
   className?: string;
@@ -17,7 +18,7 @@ export const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const fetchBalance = async () => {
-    if (connectionStatus !== 'Connected') return;
+    if (connectionStatus !== ConnectionStatus.CONNECTED) return;
     
     try {
       setIsLoading(true);
@@ -47,11 +48,11 @@ export const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
 
 
   const renderBalance = () => {
-    if (!connectionStatus || connectionStatus === 'Disconnected') {
+    if (!connectionStatus || connectionStatus === ConnectionStatus.DISCONNECTED) {
       return 'Not connected';
     }
     
-    if (connectionStatus === 'Connecting...') {
+    if (connectionStatus === ConnectionStatus.CONNECTED) {
       return 'Connecting...';
     }
     
@@ -68,7 +69,7 @@ export const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
 
   const getBalanceClassNames = () => {
     const baseClass = 'easya-balance-display__value';
-    if (!connectionStatus || connectionStatus === 'Disconnected') {
+    if (!connectionStatus || connectionStatus === ConnectionStatus.DISCONNECTED) {
       return `${baseClass} easya-balance-display__value--disconnected`;
     }
     if (isLoading) {
@@ -89,7 +90,7 @@ export const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
           </span>
           <button
             onClick={fetchBalance}
-            disabled={!connectionStatus || connectionStatus !== 'Connected' || isLoading}
+            disabled={!connectionStatus || connectionStatus !== ConnectionStatus.CONNECTED || isLoading}
             className="easya-balance-display__refresh"
             aria-label="Refresh balance"
           >

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
 import { DEFAULT_SUPPORTED_CURRENCIES, SupportedCurrency } from '../utils/supported_currencies';
 import { Balance } from 'easya-sdk-core/dist/core/types';
+import { ConnectionStatus } from './types';
 
 const TransactionForm: React.FC = () => {
     const {
@@ -21,10 +22,11 @@ const TransactionForm: React.FC = () => {
     const [error, setError] = useState<string>('');
     const [transactionError, setTransactionError] = useState<string>('');
 
-    const isConnected = connectionStatus?.toLowerCase().includes('connected');
+    const isConnected = connectionStatus === ConnectionStatus.CONNECTED;
 
     useEffect(() => {
         const fetchAssets = async () => {
+            console.log(`isConnected ${isConnected}`);
             if (!isConnected) return;
             
             try {

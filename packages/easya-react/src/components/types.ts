@@ -29,9 +29,18 @@ export interface BlockchainValues {
   disallowXRP: boolean;
 }
 
+export enum ConnectionStatus {
+  CONNECTED = 'connected',
+  DISCONNECTED = 'disconnected',
+  DISCONNECTING = 'disconnecting',
+  CONNECTING = 'connecting',
+  FIALED = 'failed'
+}
+
+
 
 export interface BlockchainContextType {
-  connectionStatus: string;
+  connectionStatus: ConnectionStatus;
   transactionStatus: string;
   values: BlockchainValues;
   updateValue: (key: keyof BlockchainValues, value: any) => void;

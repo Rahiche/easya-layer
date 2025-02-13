@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
 import { NFT } from 'easya-sdk-core/dist/core/types';
+import { ConnectionStatus } from './types';
 
 interface NFTGalleryProps {
   className?: string;
@@ -17,7 +18,7 @@ const NFTGallery: React.FC<NFTGalleryProps> = ({ className = '' }) => {
 
   useEffect(() => {
     const fetchNFTs = async () => {
-      if (connectionStatus !== 'Connected') return;
+      if (connectionStatus !== ConnectionStatus.CONNECTED) return;
 
       setLoading(true);
       setError(null);
@@ -103,7 +104,7 @@ const NFTGallery: React.FC<NFTGalleryProps> = ({ className = '' }) => {
             {nft.price || 'Not for sale'}
           </span>
         </div>
-        {connectionStatus === 'Connected' &&
+        {connectionStatus === ConnectionStatus.CONNECTED &&
           nft.price &&
           nft.price !== 'Not for sale' && (
             <button
@@ -148,7 +149,7 @@ const NFTGallery: React.FC<NFTGalleryProps> = ({ className = '' }) => {
     <div className={`nft-gallery ${className}`}>
       <div className="gallery-header">
         <h2 className="gallery-title">Gallery</h2>
-        {connectionStatus !== 'Connected' && (
+        {connectionStatus !== ConnectionStatus.CONNECTED && (
           <p className="connection-warning">Connect wallet to view NFTs</p>
         )}
       </div>

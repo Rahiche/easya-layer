@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
-import { BlockchainValues } from './types';
+import { BlockchainValues, ConnectionStatus } from './types';
 
 interface FieldConfig {
     show: boolean;
@@ -125,7 +125,7 @@ export const IssueTokenForm: React.FC = () => {
         issueToken
     } = useBlockchain();
 
-    const isConnected = connectionStatus === 'Connected';
+    const isConnected = connectionStatus === ConnectionStatus.CONNECTED;
 
     const handleChange = (field: keyof BlockchainValues) => (value: any) => {
         updateValue(field, value);

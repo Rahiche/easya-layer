@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
 import { TransactionStatus } from './TransactionStatus';
+import { ConnectionStatus } from './types';
 
 const NFTTransferForm: React.FC = () => {
     const {
@@ -15,7 +16,7 @@ const NFTTransferForm: React.FC = () => {
     });
     const [error, setError] = useState('');
 
-    const isConnected = connectionStatus?.toLowerCase().includes('connected');
+    const isConnected = connectionStatus === ConnectionStatus.CONNECTED;
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
