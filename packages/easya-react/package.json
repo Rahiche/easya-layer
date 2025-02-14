@@ -1,6 +1,6 @@
 {
   "name": "@easya/layer-ui-react",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -21,7 +21,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@easya/layer-js": "^0.0.1"
+    "@easya/layer-js": "^0.0.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
@@ -33,6 +33,24 @@
   },
   "peerDependencies": {
     "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "react-dom": ">=18.0.0",
+    "@aptos-labs/ts-sdk": "^1.35.0",
+    "@crossmarkio/sdk": "^0.4.0",
+    "@gemwallet/api": "^3.8.0",
+    "xrpl": "^4.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@aptos-labs/ts-sdk": {
+      "optional": true
+    },
+    "@crossmarkio/sdk": {
+      "optional": true
+    },
+    "@gemwallet/api": {
+      "optional": true
+    },
+    "xrpl": {
+      "optional": true
+    }
   }
 }
