@@ -1,14 +1,206 @@
-'use strict';
-
-var xrpl = require('xrpl');
-var tsSdk = require('@aptos-labs/ts-sdk');
-var b = require('@crossmarkio/sdk');
-var api = require('@gemwallet/api');
-
-function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
-
-var b__default = /*#__PURE__*/_interopDefault(b);
-
-var l=class{static validateCurrencyCode(e){return e?e.length===this.STANDARD_LENGTH?this.validateStandardCode(e):(e.length!==this.NONSTANDARD_LENGTH&&(e=this.convertToHex(e)),this.validateNonstandardCode(e)):{isValid:!1,type:"invalid",error:"Currency code cannot be empty"}}static convertToHex(e){if(!e||e.length===0)throw new Error("Currency code cannot be empty");let r=new TextEncoder().encode(e),n=new Uint8Array(20);n[0]=2;for(let s=0;s<Math.min(r.length,19);s++)n[s+1]=r[s];return Array.from(n).map(s=>s.toString(16).padStart(2,"0")).join("").toUpperCase()}static convertFromHex(e){return xrpl.convertHexToString(e)}static validateStandardCode(e){return e==="XRP"?{isValid:!1,type:"invalid",error:"XRP is not allowed as a currency code"}:[...e].every(r=>r>="A"&&r<="Z"||r>="a"&&r<="z"||r>="0"&&r<="9"||this.ALLOWED_SPECIAL_CHARS.includes(r))?{isValid:!0,type:"standard"}:{isValid:!1,type:"invalid",error:"Standard currency code contains invalid characters"}}static validateNonstandardCode(e){return /^[0-9A-Fa-f]+$/.test(e)?e.substring(0,2)==="00"?{isValid:!1,type:"invalid",error:"Nonstandard currency code cannot start with 0x00"}:{isValid:!0,type:"nonstandard"}:{isValid:!1,type:"invalid",error:"Nonstandard currency code must be a valid hexadecimal string"}}static validateForIssuance(e){let t=this.validateCurrencyCode(e.currencyCode);if(!t.isValid)throw new Error(`Invalid currency code: ${t.error}`)}};l.STANDARD_LENGTH=3,l.NONSTANDARD_LENGTH=40,l.ALLOWED_SPECIAL_CHARS=["?","!","@","#","$","%","^","&","*","<",">","(",")","{","}","[","]","|"];var w=class{static createLimitAmount(e,t,r){let n=l.validateCurrencyCode(e);if(!n.isValid)throw new Error(`Invalid currency code: ${n.error}`);let o;return n.type==="standard"?o=e:o=l.convertToHex(e),console.log("Formatted currency:",o),{currency:o,issuer:t,value:r}}};var p=class{constructor(e){this.client=e;}stringToHex(e){return Array.from(new TextEncoder().encode(e)).map(t=>t.toString(16).padStart(2,"0")).join("")}hexToString(e){var r;let t=new Uint8Array(((r=e.match(/.{1,2}/g))==null?void 0:r.map(n=>parseInt(n,16)))||[]);return new TextDecoder().decode(t)}dropsToXRP(e){return xrpl.dropsToXrp(e).toString()}xrpToDrops(e){return xrpl.xrpToDrops(e)}async fetchNFTMetadata(e){try{let t=e.startsWith("ipfs://")?`https://ipfs.io/ipfs/${e.slice(7)}`:e;return await(await fetch(t)).json()}catch(t){return console.warn(`Failed to fetch metadata from ${e}: ${t}`),{}}}async checkTrustLine(e,t,r){if(console.log(`Checking trust line for - Address: ${e}, Currency: ${t}, Issuer: ${r}`),!e||!t||!r)throw console.log("Missing required parameters"),new Error("Address, currency, and issuer are required parameters");try{let n={command:"account_lines",account:e,peer:r};console.log("Sending account_lines request:",n);let o=await this.client.request(n);if(console.log("Received response:",o),!o.result.lines||o.result.lines.length===0)return console.log("No trust lines found"),!1;let s=l.convertToHex(t);console.log(`nonStdCurrencyCode: ${s}`);let i=o.result.lines.some(c=>(c.currency===t||c.currency===s)&&(c.limit!=="0"||c.limit_peer!=="0"));return console.log(`Trust line found: ${i}`),i}catch(n){throw console.error("Error checking trust line:",n),new Error(`Failed to check trust line: ${n}`)}}};function S(a){if(!a)throw new Error("Trust line configuration is required");if(!a.currency)throw new Error("Currency is required for trust line");if(!a.issuer)throw new Error("Issuer address is required for trust line");if(typeof a.limit!="string"&&typeof a.limit!="number")throw new Error("Trust line limit must be a valid number or string")}function x(a){if(!a)throw new Error("Currency transaction configuration is required");if(!a.currency)throw new Error("Currency code is required");if(!a.issuer)throw new Error("Currency issuer address is required");if(!a.amount||isNaN(Number(a.amount)))throw new Error("Valid amount is required")}function I(a){return typeof a=="number"?a.toString():a}var f=class{constructor(e,t){this.config=e;this.provider=t;this.isConnected=!1;this.currentAddress=null;}ensureConnected(){if(!this.isConnected)throw new Error("Not connected to network")}async getTargetAddress(e){let t=e||this.currentAddress;if(!t)throw new Error("No address provided and no cached address available");return t}validateTransactionConfig(e){if(!e)throw new Error("Transaction configuration is required");if(!e.to)throw new Error("Recipient address is required");if(!e.amount||parseFloat(e.amount)<=0)throw new Error("Valid amount is required")}validateNFTConfig(e){if(!e)throw new Error("NFT configuration is required");if(!e.URI)throw new Error("NFT URI is required");if(typeof e.taxon!="number")throw new Error("NFT taxon must be a number");if(e.transferFee!==void 0&&(e.transferFee<0||e.transferFee>5e4))throw new Error("Transfer fee must be between 0 and 50000")}validateTransferNFTParams(e,t){if(!(e!=null&&e.trim()))throw new Error("Valid token ID is required");if(!(t!=null&&t.trim()))throw new Error("Valid recipient address is required");this.validateAddressFormat(t);}validateAddressFormat(e){switch(this.config.blockchain.toLowerCase()){case"xrpl":if(!e.startsWith("r")||e.length!==34)throw new Error("Invalid XRPL address format");break}}handleError(e,t){let r=t instanceof Error?t.message:"Unknown error occurred";throw console.error(`Error in ${e}:`,r),new Error(`Failed to ${e}: ${r}`)}getCurrencySymbol(){switch(this.config.blockchain.toLowerCase()){case"xrpl":return "XRP";case"aptos":return "APT";default:throw new Error(`Unsupported blockchain: ${this.config.blockchain}`)}}async createTrustLine(e){try{return this.ensureConnected(),S(e),await this.provider.createTrustLine(e)}catch(t){return this.handleError("create trust line",t)}}async sendCurrency(e){try{this.ensureConnected(),x(e);let t={...e,amount:I(e.amount)};return await this.provider.sendCurrency(t)}catch(t){return this.handleError("send currency",t)}}};var P=class{},L=new P;var y=class y{constructor(e="testnet"){this.utils=L;if(this.network=e,!y.NETWORKS[this.network])throw new Error(`Invalid network: ${e}`);let r=tsSdk.NetworkToNetworkName[e],n=new tsSdk.AptosConfig({network:r});this.aptos=new tsSdk.Aptos(n);}xrplUtils(){throw new Error("Method not implemented.")}createTrustLine(e){throw new Error("Method not implemented.")}sendCurrency(e){throw new Error("Method not implemented.")}getBalances(e){throw new Error("Method not implemented.")}issueToken(e){throw new Error("Method not implemented.")}issueFungibleToken(e){throw new Error("Method not implemented.")}async disconnect(){}async establishConnection(){return {status:"connected",timestamp:Date.now()}}async getTransactionStatus(e){return {hash:e,status:"unknown"}}async estimateFee(e){return "0.001"}validateAddress(e){return typeof e=="string"&&e.length>0}async mintToken(e){return {hash:"0x"+"0".repeat(64),status:"success"}}async transferToken(e){return {hash:"0x"+"0".repeat(64),status:"success"}}async getTokenBalance(e,t){return "0"}async getNFTMetadata(e){return {tokenId:e,name:"Unknown Token",description:"Metadata not available"}}async getNFTs(e){return []}getNetwork(){return this.network}isConnected(){return !!this.wallet}async getBlockHeight(){return 0}async sign(e){return "0x"+"0".repeat(130)}async verify(e,t,r){return !1}subscribeToEvents(e,t){}unsubscribeFromEvents(e){}async isWalletInstalled(){return !!window.aptos}async connect(){try{if(!window.aptos)throw new Error("Aptos wallet is not installed");let e=await window.aptos.connect(),t=await window.aptos.account();return this.wallet={address:t.address,publicKey:t.publicKey},this.wallet.address}catch(e){throw new Error(`Failed to connect to Aptos: ${e}`)}}async sendTransaction(e){try{if(!this.wallet)throw new Error("Not connected to Aptos");let t={arguments:[e.to,(Number(e.amount)*1e8).toString()],function:"0x1::coin::transfer",type:"entry_function_payload",type_arguments:["0x1::aptos_coin::AptosCoin"]};return {hash:(await window.aptos.signAndSubmitTransaction(t)).hash}}catch(t){throw new Error(`Transaction failed: ${t}`)}}async collectionExists(e){try{return !!await this.aptos.getCollectionData({creatorAddress:this.wallet.accountAddress,collectionName:e})}catch(t){return !1}}async mintNFT(e){try{if(!this.wallet)throw new Error("Not connected to Aptos");console.log("Minting NFT with config:",e);let t="colleciton name",r=e.name||"MyNFT",n=await this.collectionExists(t);console.log("Creating token with name:",r);let o=await this.aptos.mintDigitalAssetTransaction({creator:this.wallet,collection:"MyCollection",description:"This is a digital asset.",name:"MyDigitalAsset",uri:"https://example.com/my-digital-asset"});console.log("Creating token with this.wallet:",this.wallet);let s=await this.aptos.signAndSubmitTransaction({signer:this.wallet,transaction:o});return console.log("Token creation transaction submitted:",s.hash),await this.aptos.waitForTransaction({transactionHash:s.hash}),{hash:s.hash}}catch(t){throw console.error("NFT minting failed:",JSON.stringify(t,null,2)),new Error(`NFT minting failed: ${t}`)}}async getOwnedTokens(e){try{return await this.aptos.getOwnedDigitalAssets({ownerAddress:e})}catch(t){throw console.error("Failed to fetch owned tokens:",t),t}}async getCollectionData(e){try{return await this.aptos.getCollectionData({creatorAddress:this.wallet.accountAddress,collectionName:e})}catch(t){throw console.error("Failed to fetch collection data:",t),t}}async transferNFT(e,t){try{if(!this.wallet)throw new Error("Not connected to Aptos");let r={arguments:[this.wallet.address,e,t,"1"],function:"0x3::token::transfer_script",type:"entry_function_payload",type_arguments:[]};return {hash:(await window.aptos.signAndSubmitTransaction(r)).hash}}catch(r){throw new Error(`NFT transfer failed: ${r}`)}}async getBalance(e){var t;try{let r=e||((t=this.wallet)==null?void 0:t.address);if(!r)throw new Error("No address provided and no wallet connected");let o=(await this.aptos.getAccountResources(r)).find(s=>s.type==="0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");return o?Number(o.data.coin.value)/100:0}catch(r){if(r.status===404)return 0;throw new Error(`Failed to get balance: ${r.message||r}`)}}async getWalletInfo(){try{if(!this.wallet)throw new Error("Wallet not connected");let e=await this.getBalance();return {address:this.wallet.address,publicKey:this.wallet.publicKey,balance:e.toString(),network:this.network}}catch(e){throw new Error(`Failed to get wallet info: ${e.message||e}`)}}};y.NETWORKS={mainnet:"https://fullnode.mainnet.aptoslabs.com",testnet:"https://fullnode.testnet.aptoslabs.com",devnet:"https://fullnode.devnet.aptoslabs.com"};var g=y;var T=class a{constructor(){this.adapters=new Map;}static getInstance(){return a.instance||(a.instance=new a),a.instance}registerAdapter(e,t){this.adapters.set(e.toLowerCase(),t);}getAdapter(e){let t=this.adapters.get(e.toLowerCase());if(!t)throw new Error(`Wallet adapter '${e}' not found`);return t}getAvailableWallets(){return Array.from(this.adapters.keys())}};var C=class{async isInstalled(){var e;return (e=b__default.default.sync.isInstalled())!=null?e:!1}async connect(){var t;let{response:e}=await b__default.default.methods.signInAndWait();if(!((t=e==null?void 0:e.data)!=null&&t.address))throw new Error("Failed to connect to Crossmark wallet");return {address:e.data.address,publicKey:e.data.publicKey}}async sign(e){let t=b__default.default.methods.sign(e);if(!t)throw new Error("Signing failed");return t}async signAndSubmit(e){let{response:t}=await b__default.default.methods.signAndSubmitAndWait(e);if(!t||!t.data)throw new Error("Transaction signing or submission failed");return t}async disconnect(){}};var v=class{constructor(){this.connected=!1;}async isInstalled(){try{return (await api.isInstalled()).result.isInstalled}catch(e){return console.error("Error checking GemWallet installation:",e),!1}}async connect(){if(!await this.isInstalled())throw new Error("GemWallet not installed");try{let e=await api.getPublicKey();if(e.type==="reject"||!e.result)throw new Error("Failed to get public key from GemWallet");let t=await api.getNetwork();if(t.type==="reject"||!t.result)throw new Error("Failed to get network information from GemWallet");return this.connected=!0,{address:e.result.address,publicKey:e.result.publicKey,network:t.result.network}}catch(e){throw console.error("Error connecting to GemWallet:",e),new Error("Failed to connect to GemWallet")}}async sign(e){if(!this.connected)throw new Error("Wallet not connected");try{let t=await api.signMessage(e);if(t.type==="reject"||!t.result)throw new Error("Message signing rejected");return t.result.signedMessage}catch(t){throw console.error("Error signing message:",t),new Error("Failed to sign message")}}async signAndSubmit(e){if(!this.connected)throw new Error("Wallet not connected");try{if(e.TransactionType==="Payment"){let t=await api.sendPayment({amount:e.Amount,destination:e.Destination,destinationTag:e.DestinationTag,fee:e.Fee,flags:e.Flags,memos:e.Memos});if(t.type==="reject"||!t.result)throw new Error("Transaction rejected");return t}if(e.TransactionType==="NFTokenMint"){typeof e.Flags=="object"&&(e.Flags=this.processNFTFlags(e.Flags));let t=await api.submitTransaction({transaction:{TransactionType:"NFTokenMint",Account:e.Account||e.Issuer,NFTokenTaxon:e.NFTokenTaxon,Flags:e.Flags,Issuer:e.Issuer,TransferFee:e.TransferFee,URI:e.URI,Memos:e.Memos,Fee:e.Fee}});if(t.type==="reject"||!t.result)throw new Error("NFT minting rejected");return t}throw new Error("Unsupported transaction type")}catch(t){throw console.error("Error in signAndSubmit:",t),new Error("Transaction signing or submission failed")}}processNFTFlags(e){let t=0;return e.tfBurnable&&(t|=1),e.tfOnlyXRP&&(t|=2),e.tfTrustLine&&(t|=4),e.tfTransferable&&(t|=8),t}async disconnect(){this.connected=!1;}async getAddress(){if(!this.connected)throw new Error("Wallet not connected");try{let e=await api.getAddress();if(e.type==="reject"||!e.result)throw new Error("Failed to get address");return e.result.address}catch(e){throw console.error("Error getting address:",e),new Error("Failed to get address")}}};var m=class m{constructor(e,t){this.walletInfo=null;this.network=t;let r=T.getInstance();r.registerAdapter("crossmark",new C),r.registerAdapter("gem",new v),this.walletAdapter=r.getAdapter(e);}xrplUtils(){return new p(this.connection)}async issueToken(e){var t;if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");if(!((t=this.walletInfo)!=null&&t.address))throw new Error("Wallet not connected");l.validateForIssuance(e);try{let r=await this.connection.fundWallet();console.log("Generated cold wallet:",r.wallet.address);let n={TransactionType:"AccountSet",Account:r.wallet.address,TransferRate:e.transferRate,TickSize:e.tickSize,Domain:"6578616D706C652E636F6D",SetFlag:xrpl.AccountSetAsfFlags.asfDefaultRipple,Fee:"12",Flags:(e.disallowXRP?xrpl.AccountSetTfFlags.tfDisallowXRP:0)|(e.requireDestTag?xrpl.AccountSetTfFlags.tfRequireDestTag:0)},o=m.NETWORKS[this.network],s=new xrpl.Client(o);await s.connect();try{let F=await s.request({command:"account_info",account:r.wallet.address});n.Sequence=F.result.account_data.Sequence,await s.autofill(n);let{tx_blob:R,hash:re}=r.wallet.sign(n);console.log("signed_tx_blob:",R);let U=await s.submit(R);console.log("result:",U);}catch(F){console.error(`Failed to sign transaction: ${F}`);}let i=w.createLimitAmount(e.currencyCode,r.wallet.address,e.amount),c={TransactionType:"TrustSet",Account:this.walletInfo.address,LimitAmount:i},u=await this.connection.autofill(c),h=await this.walletAdapter.signAndSubmit(u);console.log("trustSetResult:",h),console.log("limitAmount.currency:",i.currency);let d={TransactionType:"Payment",Account:r.wallet.address,Destination:this.walletInfo.address,Amount:{currency:i.currency,value:e.amount,issuer:r.wallet.address}};console.log("paymentTx:",d);let D=await s.request({command:"account_info",account:r.wallet.address});d.Sequence=D.result.account_data.Sequence;let M=await s.autofill(d),{tx_blob:k,hash:te}=r.wallet.sign(M);console.log("signed_tx_blob2:",k);let N=await s.submit(k);return await s.disconnect(),console.log("result:",N),{hash:N.result.tx_blob}}catch(r){throw new Error(`Token issuance failed: ${r.message||r}`)}}async isWalletInstalled(){var r;for(let n=1;n<=3;n++)try{if((r=await this.walletAdapter.isInstalled())!=null?r:!1)return !0;if(n<3){await new Promise(s=>setTimeout(s,1e3)),console.debug(`Wallet not detected on attempt ${n}/3, retrying...`);continue}}catch(o){if(n===3)throw new Error(`Failed to check if wallet is installed after 3 attempts: ${o}`);await new Promise(s=>setTimeout(s,1e3)),console.warn(`Error on attempt ${n}/3, retrying...`);}return !1}async getBalance(e){var t,r;try{if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");let n=e||((t=this.walletInfo)==null?void 0:t.address);if(!n)throw new Error("No address provided and no wallet connected");let s=(await this.connection.request({command:"account_info",account:n,ledger_index:"validated"})).result.account_data.Balance;return Number(s)}catch(n){if(((r=n.data)==null?void 0:r.error)==="actNotFound")return 0;throw new Error(`Failed to get balance: ${n.message||n}`)}}async connect(){try{if(!await this.isWalletInstalled())throw new Error("Wallet is not installed");return this.walletInfo=await this.walletAdapter.connect(),this.connection=await this.establishConnection(),this.walletInfo.address}catch(e){throw new Error(`Failed to connect to XRPL: ${e}`)}}async establishConnection(){try{let e=m.NETWORKS[this.network];if(!e)throw new Error(`Invalid network: ${this.network}`);let t=new xrpl.Client(e);return await t.connect(),t}catch(e){throw new Error(`XRPL connection failed: ${e}`)}}async disconnect(){var e;try{(e=this.connection)!=null&&e.isConnected()&&await this.connection.disconnect(),await this.walletAdapter.disconnect(),this.walletInfo=null;}catch(t){throw new Error(`Disconnect failed: ${t}`)}}async sendTransaction(e){try{if(!this.walletInfo||!this.connection)throw new Error("Not connected to XRPL");let t={TransactionType:"Payment",Account:this.walletInfo.address,Destination:e.to,Amount:(Number(e.amount)*1e6).toString()},r=await this.connection.autofill(t),n=await this.walletAdapter.signAndSubmit(r);return console.log("Transaction response:",n),{hash:n.result.hash}}catch(t){throw new Error(`Transaction failed: ${t}`)}}async mintNFT(e){var t;try{if(!this.walletInfo||!this.connection)throw new Error("Not connected to XRPL");let r={TransactionType:"NFTokenMint",Account:this.walletInfo.address,URI:this.xrplUtils().stringToHex(JSON.stringify(e.URI)),Flags:e.flags||0,TransferFee:e.transferFee||0,NFTokenTaxon:e.taxon},n=await this.connection.autofill(r),o=await this.walletAdapter.signAndSubmit(n);console.log("NFT mint response:",o);let s=typeof o.result.meta=="object"&&"nftoken_id"in o.result.meta?o.result.meta.nftoken_id:void 0;if(!s||s==null||s==null){let i=await this.connection.request({command:"tx",transaction:o.result.hash});console.log("Transaction response:",i),typeof((t=i.result)==null?void 0:t.meta)=="object"&&"nftoken_id"in i.result.meta&&(s=i.result.meta.nftoken_id);}return {hash:o.result.hash,nftID:s?`${s}`:void 0}}catch(r){throw new Error(`NFT minting failed: ${r}`)}}async issueFungibleToken(e){try{if(!this.walletInfo||!this.connection)throw new Error("Not connected to XRPL");if(!e.currency||e.currency.length<1||e.currency.length>4)throw new Error("Invalid currency code. Must be 1-4 characters for standard currencies.");let t;if(e.limit){let s={TransactionType:"TrustSet",Account:e.destination,LimitAmount:{currency:e.currency,issuer:e.issuer,value:e.limit}},i=await this.connection.autofill(s),c=await this.walletAdapter.signAndSubmit(i);if(c.result.engine_result!=="tesSUCCESS")throw new Error(`Trust line creation failed: ${c.result.engine_result_message}`);t=c.result.hash,await this.connection.request({command:"ledger_current"});}let r={TransactionType:"Payment",Account:e.issuer,Destination:e.destination,Amount:{currency:e.currency,value:e.amount,issuer:e.issuer}};if(e.destinationTag!==void 0&&(r.DestinationTag=e.destinationTag),e.transferRate!==void 0){let s={TransactionType:"AccountSet",Account:e.issuer,TransferRate:Math.floor(e.transferRate*1e9)},i=await this.connection.autofill(s);await this.walletAdapter.signAndSubmit(i);}let n=await this.connection.autofill(r),o=await this.walletAdapter.signAndSubmit(n);if(o.result.engine_result!=="tesSUCCESS")throw new Error(`Token issuance failed: ${o.result.engine_result_message}`);return {trustLineHash:t,issuanceHash:o.result.hash,amount:e.amount,currency:e.currency}}catch(t){throw new Error(`Failed to issue token: ${t}`)}}async transferNFT(e,t){try{if(!this.walletInfo||!this.connection)throw new Error("Not connected to XRPL");let r={TransactionType:"NFTokenCreateOffer",Account:this.walletInfo.address,NFTokenID:e,Destination:t,Amount:"0",Flags:1},n=await this.connection.autofill(r);return {hash:(await this.walletAdapter.signAndSubmit(n)).result.hash}}catch(r){throw new Error(`NFT transfer failed: ${r}`)}}async mintToken(e){try{if(!this.walletInfo||!this.connection)throw new Error("Not connected to XRPL");let t={TransactionType:"AccountSet",Account:this.walletInfo.address,SetFlag:8},r=await this.connection.autofill(t);await this.walletAdapter.signAndSubmit(r);let n={TransactionType:"TrustSet",Account:this.walletInfo.address,LimitAmount:{currency:e.currency,issuer:e.issuer,value:e.limit||"1000000000"}},o=await this.connection.autofill(n);return {hash:(await this.walletAdapter.signAndSubmit(o)).result.hash}}catch(t){throw new Error(`Token minting failed: ${t}`)}}async getNFTs(e){var t;try{if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");let r=e||((t=this.walletInfo)==null?void 0:t.address);if(!r)throw new Error("No address provided and no wallet connected");let n=await this.connection.request({command:"account_nfts",account:r});return !n.result||!n.result.account_nfts?[]:Promise.all(n.result.account_nfts.map(async o=>{let s={};if(o.URI)try{let i=this.xrplUtils().hexToString(o.URI);try{s=JSON.parse(i);}catch(c){(i.startsWith("ipfs://")||i.startsWith("http"))&&(s=await this.fetchNFTMetadata(i));}}catch(i){console.warn(`Failed to process metadata for NFT: ${i}`);}return {id:o.NFTokenID,name:(s==null?void 0:s.name)||"Unnamed NFT",description:(s==null?void 0:s.description)||"No description available",imageUrl:(s==null?void 0:s.image)||"/api/placeholder/300/300",owner:r,price:void 0}}))}catch(r){throw new Error(`Failed to fetch NFTs: ${r.message||r}`)}}async fetchNFTMetadata(e){try{let t=e.startsWith("ipfs://")?`https://ipfs.io/ipfs/${e.slice(7)}`:e;return await(await fetch(t)).json()}catch(t){return console.warn(`Failed to fetch metadata from ${e}: ${t}`),{}}}async getTransactionStatus(e){try{if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");let t=await this.connection.request({command:"tx",transaction:e});return {hash:t.result.hash,status:t.result.validated?"confirmed":"pending"}}catch(t){throw new Error(`Failed to get transaction status: ${t}`)}}async getWalletInfo(){if(!this.walletInfo)throw new Error("Wallet not connected");return this.walletInfo}async estimateFee(e){try{if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");let t=await this.connection.request({command:"fee"}),r=xrpl.dropsToXrp(t.result.drops.base_fee);return (Number(r)*1.5).toFixed(6)}catch(t){throw new Error(`Failed to estimate fee: ${t}`)}}async sendCurrency(e){try{if(!this.walletInfo||!this.connection)throw new Error("Not connected to XRPL");let t={TransactionType:"Payment",Account:this.walletInfo.address,Amount:{currency:e.currency,value:e.amount,issuer:e.issuer},Destination:e.destination},r=await this.connection.autofill(t),n=await this.walletAdapter.signAndSubmit(r);return console.log("Currency payment response:",n),{hash:n.result.hash,status:n.result.validated?"confirmed":"pending"}}catch(t){throw new Error(`Currency payment failed: ${t}`)}}async createTrustLine(e){try{if(!this.walletInfo||!this.connection)throw new Error("Not connected to XRPL");if(!e.currency||!e.issuer)throw new Error("Currency and issuer are required");let t=w.createLimitAmount(e.currency,e.issuer,e.limit||"1000000000"),r={TransactionType:"TrustSet",Account:this.walletInfo.address,LimitAmount:t},n=await this.connection.autofill(r),o=await this.walletAdapter.signAndSubmit(n);return console.log("Trust line creation response:",o),{hash:o.result.hash}}catch(t){throw new Error(`Failed to create trust line: ${t}`)}}async getBalances(e){var t,r;try{if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");let n=e||((t=this.walletInfo)==null?void 0:t.address);if(!n)throw new Error("No address provided and no wallet connected");let o=await this.getBalance(n),s=[{currency:"XRP",value:xrpl.dropsToXrp(o).toString(),issuer:void 0,nonStandard:"XRP"}];try{let c=(await this.connection.request({command:"account_lines",account:n,ledger_index:"validated"})).result.lines;if(Array.isArray(c)){for(let u of c)if(u.balance!=="0"){let h=u.currency,d="";h.length>3&&(d=l.convertFromHex(h),d=d.replace(/\u0000/g,"").trim(),d=d.trim()),s.push({currency:h,value:u.balance,issuer:u.account,nonStandard:d});}}}catch(i){((r=i.data)==null?void 0:r.error)!=="actNotFound"&&console.warn("Failed to fetch issued currency balances:",i);}return console.log("Balances:",s),s}catch(n){throw console.error("Error in getBalances:",n),n}}validateAddress(e){return /^r[1-9A-HJ-NP-Za-km-z]{25,34}$/.test(e)}async getTokenBalance(e,t){var r;try{if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");let n=t||((r=this.walletInfo)==null?void 0:r.address);if(!n)throw new Error("No address provided and no wallet connected");let s=(await this.connection.request({command:"account_lines",account:n})).result.lines.find(i=>i.currency===e);return s?s.balance:"0"}catch(n){throw new Error(`Failed to get token balance: ${n}`)}}async getNFTMetadata(e){try{if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");let r=(await this.connection.request({command:"nft_info",nft_id:e})).result,n={};if(r.uri){let o=this.xrplUtils().hexToString(r.uri);try{n=JSON.parse(o);}catch(s){(o.startsWith("ipfs://")||o.startsWith("http"))&&(n=await this.fetchNFTMetadata(o));}}return {...n,tokenId:e,owner:r.owner,flags:r.flags,transferFee:r.transfer_fee,issuer:r.issuer,nftSerial:r.nft_serial}}catch(t){throw new Error(`Failed to get NFT metadata: ${t}`)}}isConnected(){var e;return !!this.walletInfo&&((e=this.connection)==null?void 0:e.isConnected())}transferToken(e){throw new Error("Method not implemented.")}getNetwork(){return this.network}async getBlockHeight(){try{if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");return (await this.connection.request({command:"ledger",ledger_index:"validated"})).result.ledger.ledger_index}catch(e){throw new Error(`Failed to get block height: ${e}`)}}async sign(e){return await this.walletAdapter.sign(e)}async verify(e,t,r){try{return (await this.connection.request({command:"submit",tx_blob:e})).result.engine_result==="tesSUCCESS"}catch(n){throw new Error(`Verification failed: ${n}`)}}subscribeToEvents(e,t){if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");switch(console.log("Subscribing to events:",e),e){case"connected":this.connection.on("connected",t);break;case"disconnected":this.connection.on("disconnected",t);break;case"ledgerClosed":this.connection.request({command:"subscribe",streams:["ledger"]}),this.connection.on("ledgerClosed",t);break;case"validationReceived":this.connection.request({command:"subscribe",streams:["validations"]}),this.connection.on("validationReceived",t);break;case"transaction":this.connection.request({command:"subscribe",streams:["transactions"]}),this.connection.on("transaction",t);break;case"peerStatusChange":this.connection.request({command:"subscribe",streams:["peer_status"]}),this.connection.on("peerStatusChange",t);break;case"consensusPhase":this.connection.request({command:"subscribe",streams:["consensus"]}),this.connection.on("consensusPhase",t);break;case"manifestReceived":this.connection.on("manifestReceived",t);break;case"error":this.connection.on("error",t);break;default:throw new Error(`Unsupported event type: ${e}`)}}unsubscribeFromEvents(e){if(!this.connection||!this.connection.isConnected())throw new Error("Not connected to XRPL");switch(e){case"connected":this.connection.off("connected");break;case"disconnected":this.connection.off("disconnected");break;case"ledgerClosed":this.connection.request({command:"unsubscribe",streams:["ledger"]}),this.connection.off("ledgerClosed");break;case"validationReceived":this.connection.request({command:"unsubscribe",streams:["validations"]}),this.connection.off("validationReceived");break;case"transaction":this.connection.request({command:"unsubscribe",streams:["transactions"]}),this.connection.off("transaction");break;case"peerStatusChange":this.connection.request({command:"unsubscribe",streams:["peer_status"]}),this.connection.off("peerStatusChange");break;case"consensusPhase":this.connection.request({command:"unsubscribe",streams:["consensus"]}),this.connection.off("consensusPhase");break;case"manifestReceived":this.connection.off("manifestReceived");break;case"error":this.connection.off("error");break;default:throw new Error(`Unsupported event type: ${e}`)}}};m.NETWORKS={mainnet:"wss://xrplcluster.com",testnet:"wss://s.altnet.rippletest.net:51233",devnet:"wss://s.devnet.rippletest.net:51233"};var A=m;var E=class{static createProvider(e,t,r){switch(e.toLowerCase()){case"xrpl":return new A(r,t);case"aptos":return new g(t);default:throw new Error(`Unsupported blockchain: ${e}`)}}};var q=class extends f{constructor(t){let r=E.createProvider(t.blockchain,t.network,t.wallet);super(t,r);this.eventCallbacks=new Map;}async connect(){try{let t=await this.provider.connect();this.isConnected=!0;try{let r=await this.provider.getWalletInfo();this.currentAddress=r.address;}catch(r){console.warn("Failed to fetch wallet address during connection:",r);}return t}catch(t){return this.handleError("connect",t)}}async disconnect(){try{this.ensureConnected(),await this.provider.disconnect(),this.isConnected=!1,this.currentAddress=null;}catch(t){this.handleError("disconnect",t);}}isActive(){return this.isConnected}async sendTransaction(t){try{if(this.ensureConnected(),t.currency&&t.currency!=="XRP"){if(!t.issuer)throw new Error("Issuer is required for non-XRP currency transactions");if(!await this.provider.xrplUtils().checkTrustLine(t.to,t.currency,t.issuer))throw new Error(`Recipient ${t.to} does not have a trust line for ${t.currency}. They must add a trust line for ${t.currency} from issuer ${t.issuer} before receiving the token.`);let o={currency:t.currency,amount:t.amount,destination:t.to,issuer:t.issuer};return await this.provider.sendCurrency(o)}let r=parseFloat(t.amount).toString();return await this.provider.sendTransaction({...t,amount:r})}catch(r){return this.handleError("send transaction",r)}}async mintNFT(t){try{return this.ensureConnected(),this.validateNFTConfig(t),await this.provider.mintNFT(t)}catch(r){return this.handleError("mint NFT",r)}}async issueToken(t){try{return this.ensureConnected(),await this.provider.issueToken(t)}catch(r){return this.handleError("issue NFT",r)}}async getBalances(){try{return this.ensureConnected(),await this.provider.getBalances()}catch(t){return this.handleError("get Balances",t)}}async getBalance(t){try{this.ensureConnected();let r=await this.getTargetAddress(t);return await this.provider.getBalance(r)}catch(r){return this.handleError("get balance",r)}}async getAddress(){try{if(this.ensureConnected(),this.currentAddress)return this.currentAddress;let t=await this.provider.getWalletInfo();return this.currentAddress=t.address,this.currentAddress}catch(t){return this.handleError("get address",t)}}async getNFTs(t){try{this.ensureConnected();let r=await this.getTargetAddress(t);return (await this.provider.getNFTs(r)).map(o=>({...o,price:o.price?`${o.price} ${this.getCurrencySymbol()}`:"Not for sale"}))}catch(r){return this.handleError("fetch NFTs",r)}}async transferNFT(t,r){try{return this.ensureConnected(),this.validateTransferNFTParams(t,r),await this.provider.transferNFT(t,r)}catch(n){return this.handleError("transfer NFT",n)}}async isWalletInstalled(){try{return await this.provider.isWalletInstalled()}catch(t){return console.warn("Error checking wallet installation:",t),!1}}getBlockchain(){return this.config.blockchain}getCurrencySymbol(){switch(this.config.blockchain.toLowerCase()){case"xrpl":return "XRP";case"aptos":return "APT";default:throw new Error(`Unsupported blockchain: ${this.config.blockchain}`)}}async subscribeToEvents(t,r){try{this.ensureConnected(),this.eventCallbacks.set(t,r),await this.provider.subscribeToEvents(t,r);}catch(n){this.handleError("subscribe to events",n);}}async unsubscribeFromEvents(t){try{if(this.ensureConnected(),!this.eventCallbacks.has(t)){console.warn(`No active subscription found for event: ${t}`);return}await this.provider.unsubscribeFromEvents(t),this.eventCallbacks.delete(t);}catch(r){this.handleError("unsubscribe from events",r);}}handleError(t,r){let n=(r==null?void 0:r.message)||String(r);throw new Error(`Failed to ${t}: ${n}`)}};
-
-exports.EasyaSDK = q;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EasyaSDK = void 0;
+const BaseBlockchainSDK_1 = require("./BaseBlockchainSDK");
+const provider_factory_1 = require("./providers/provider.factory");
+class EasyaSDK extends BaseBlockchainSDK_1.BaseBlockchainSDK {
+    constructor(config) {
+        const provider = provider_factory_1.ProviderFactory.createProvider(config.blockchain, config.network, config.wallet);
+        super(config, provider);
+        this.eventCallbacks = new Map();
+    }
+    async connect() {
+        try {
+            const result = await this.provider.connect();
+            this.isConnected = true;
+            try {
+                const walletInfo = await this.provider.getWalletInfo();
+                this.currentAddress = walletInfo.address;
+            }
+            catch (error) {
+                console.warn('Failed to fetch wallet address during connection:', error);
+            }
+            return result;
+        }
+        catch (error) {
+            return this.handleError('connect', error);
+        }
+    }
+    async disconnect() {
+        try {
+            this.ensureConnected();
+            await this.provider.disconnect();
+            this.isConnected = false;
+            this.currentAddress = null;
+        }
+        catch (error) {
+            this.handleError('disconnect', error);
+        }
+    }
+    isActive() {
+        return this.isConnected;
+    }
+    async sendTransaction(config) {
+        try {
+            this.ensureConnected();
+            // If currency is specified and it's not the native currency (e.g., XRP)
+            if (config.currency && config.currency !== 'XRP') {
+                if (!config.issuer) {
+                    throw new Error('Issuer is required for non-XRP currency transactions');
+                }
+                // Check if recipient has a trust line for this currency
+                const hasTrustLine = await this.provider.xrplUtils().checkTrustLine(config.to, config.currency, config.issuer);
+                if (!hasTrustLine) {
+                    throw new Error(`Recipient ${config.to} does not have a trust line for ${config.currency}. They must add a trust line for ${config.currency} from issuer ${config.issuer} before receiving the token.`);
+                }
+                const currencyConfig = {
+                    currency: config.currency,
+                    amount: config.amount,
+                    destination: config.to,
+                    issuer: config.issuer
+                };
+                return await this.provider.sendCurrency(currencyConfig);
+            }
+            const amountInDrops = parseFloat(config.amount).toString();
+            return await this.provider.sendTransaction({
+                ...config,
+                amount: amountInDrops
+            });
+        }
+        catch (error) {
+            return this.handleError('send transaction', error);
+        }
+    }
+    async mintNFT(config) {
+        try {
+            this.ensureConnected();
+            this.validateNFTConfig(config);
+            return await this.provider.mintNFT(config);
+        }
+        catch (error) {
+            return this.handleError('mint NFT', error);
+        }
+    }
+    async issueToken(config) {
+        try {
+            this.ensureConnected();
+            return await this.provider.issueToken(config);
+        }
+        catch (error) {
+            return this.handleError('issue NFT', error);
+        }
+    }
+    async getBalances() {
+        try {
+            this.ensureConnected();
+            return await this.provider.getBalances();
+        }
+        catch (error) {
+            return this.handleError('get Balances', error);
+        }
+    }
+    async getBalance(address) {
+        try {
+            this.ensureConnected();
+            const targetAddress = await this.getTargetAddress(address);
+            return await this.provider.getBalance(targetAddress);
+        }
+        catch (error) {
+            return this.handleError('get balance', error);
+        }
+    }
+    async getAddress() {
+        try {
+            this.ensureConnected();
+            if (this.currentAddress) {
+                return this.currentAddress;
+            }
+            const walletInfo = await this.provider.getWalletInfo();
+            this.currentAddress = walletInfo.address;
+            return this.currentAddress;
+        }
+        catch (error) {
+            return this.handleError('get address', error);
+        }
+    }
+    async getNFTs(address) {
+        try {
+            this.ensureConnected();
+            const targetAddress = await this.getTargetAddress(address);
+            const nfts = await this.provider.getNFTs(targetAddress);
+            return nfts.map(nft => ({
+                ...nft,
+                price: nft.price ? `${nft.price} ${this.getCurrencySymbol()}` : 'Not for sale'
+            }));
+        }
+        catch (error) {
+            return this.handleError('fetch NFTs', error);
+        }
+    }
+    async transferNFT(tokenId, to) {
+        try {
+            this.ensureConnected();
+            this.validateTransferNFTParams(tokenId, to);
+            return await this.provider.transferNFT(tokenId, to);
+        }
+        catch (error) {
+            return this.handleError('transfer NFT', error);
+        }
+    }
+    async isWalletInstalled() {
+        try {
+            return await this.provider.isWalletInstalled();
+        }
+        catch (error) {
+            console.warn('Error checking wallet installation:', error);
+            return false;
+        }
+    }
+    getBlockchain() {
+        return this.config.blockchain;
+    }
+    getCurrencySymbol() {
+        switch (this.config.blockchain.toLowerCase()) {
+            case 'xrpl':
+                return 'XRP';
+            case 'aptos':
+                return 'APT';
+            default:
+                throw new Error(`Unsupported blockchain: ${this.config.blockchain}`);
+        }
+    }
+    async subscribeToEvents(eventName, callback) {
+        try {
+            this.ensureConnected();
+            // Store callback for cleanup during unsubscribe
+            this.eventCallbacks.set(eventName, callback);
+            // Forward the subscription to the provider
+            await this.provider.subscribeToEvents(eventName, callback);
+        }
+        catch (error) {
+            this.handleError('subscribe to events', error);
+        }
+    }
+    async unsubscribeFromEvents(eventName) {
+        try {
+            this.ensureConnected();
+            // Check if we have an active subscription
+            if (!this.eventCallbacks.has(eventName)) {
+                console.warn(`No active subscription found for event: ${eventName}`);
+                return;
+            }
+            // Forward the unsubscribe request to the provider
+            await this.provider.unsubscribeFromEvents(eventName);
+            // Clean up the stored callback
+            this.eventCallbacks.delete(eventName);
+        }
+        catch (error) {
+            this.handleError('unsubscribe from events', error);
+        }
+    }
+    handleError(operation, error) {
+        const errorMessage = (error === null || error === void 0 ? void 0 : error.message) || String(error);
+        throw new Error(`Failed to ${operation}: ${errorMessage}`);
+    }
+}
+exports.EasyaSDK = EasyaSDK;

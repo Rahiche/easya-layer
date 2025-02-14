@@ -1,5 +1,5 @@
-import { EasyaSDK } from "easya-sdk-core";
-import { Balance, NFT, TransactionResult } from "easya-sdk-core/dist/core/types";
+import { EasyaSDK } from "@easya/layer-js";
+import { Balance, NFT, TransactionResult } from "@easya/layer-js/dist/core/types";
 
 
 export interface BlockchainValues {

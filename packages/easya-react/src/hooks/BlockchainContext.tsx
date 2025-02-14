@@ -14,8 +14,8 @@ import {
     getBalances,
     issueToken
 } from './blockchainService';
-import { EasyaConfig } from 'easya-sdk-core/dist/core/types';
-import { EasyaSDK } from 'easya-sdk-core';
+import { EasyaConfig } from '@easya/layer-js/dist/core/types';
+import { EasyaSDK } from '@easya/layer-js';
 
 const BlockchainContext = createContext<BlockchainContextType | null>(null);
 

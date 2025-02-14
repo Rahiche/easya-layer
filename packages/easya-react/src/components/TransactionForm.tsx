@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
 import { DEFAULT_SUPPORTED_CURRENCIES, SupportedCurrency } from '../utils/supported_currencies';
-import { Balance } from 'easya-sdk-core/dist/core/types';
+import { Balance } from '@easya/layer-js/dist/core/types';
 import { ConnectionStatus } from './types';
 
 const TransactionForm: React.FC = () => {

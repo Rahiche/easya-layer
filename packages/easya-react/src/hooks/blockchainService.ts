@@ -1,6 +1,6 @@
-import { EasyaSDK } from 'easya-sdk-core';
+import { EasyaSDK } from '@easya/layer-js';
 import { BlockchainValues } from '../components/types';
-import { Balance, NFT, NFTConfig, TokenIssuanceData, TransactionResult } from 'easya-sdk-core/dist/core/types';
+import { Balance, NFT, NFTConfig, TokenIssuanceData, TransactionResult } from '@easya/layer-js/dist/core/types';
 
 
 export const issueToken = async (

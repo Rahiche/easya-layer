@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { darkMode, lightMode } from './theme';
-import { EasyaConfig } from 'easya-sdk-core/dist/core/types';
+import { EasyaConfig } from '@easya/layer-js/dist/core/types';
 import { AddressDisplay, BalanceDisplay, BalancesDisplay, BlockchainProvider, ConnectButton, IssueTokenForm, TransactionForm, TrustLineForm } from '@easya/layer-ui-react';
 
 const App: React.FC = () => {

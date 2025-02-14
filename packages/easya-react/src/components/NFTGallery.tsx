@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
-import { NFT } from 'easya-sdk-core/dist/core/types';
+import { NFT } from '@easya/layer-js/dist/core/types';
 import { ConnectionStatus } from './types';
 
 interface NFTGalleryProps {

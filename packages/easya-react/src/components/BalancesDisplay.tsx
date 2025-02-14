@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useBlockchain } from '../hooks/BlockchainContext';
-import { Balance } from 'easya-sdk-core/dist/core/types';
+import { Balance } from '@easya/layer-js/dist/core/types';
 import { ConnectionStatus } from './types';
 
 
