@@ -1,101 +1,97 @@
-# EasyaSDK Sample Project
+# @easya/layer-js
 
-This repository demonstrates the integration and usage of EasyaSDK with React for blockchain interactions on the XRPL testnet.
+**Effortless Blockchain Interactions for XRPL & Aptos.**
 
-## Features
+A simple JavaScript SDK to interact with XRPL and Aptos blockchains. Simplify transactions, NFTs, and more!
 
-- Wallet connection management
-- Balance display
-- Address display
-- NFT minting capabilities
-- NFT transfer functionality
-- NFT gallery visualization
-- Transaction management
 
-## Prerequisites
+**Key Features:**
 
-Before you begin, ensure you have the following installed:
+*   Unified API for XRPL & Aptos
+*   Simplified Transactions & NFT Management
+*   Wallet Connection & Event Subscription
+*   React-Friendly
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
 
-## Getting Started
-
-Clone the repository:
+**Installation:**
 
 ```bash
-git clone https://github.com/Rahiche/easya-layer.git
+npm install @easya/layer-js
 ```
 
-Navigate to the project directory and Install dependencies::
 
-```bash
-cd easya-layer && npm install && cd packages/easya-react && npm install && cd ../.. && cd easya-sdk-starter && npm install
-```
+**Basic Usage:**
 
-Start the development server:
+1.  **Import & Configure:**
 
-```bash
-npm start
-```
+```javascript
+import { EasyaSDK } from '@easya/layer-js';
+import { EasyaConfig } from '@easya/layer-js/core/types';
 
-## Sample Implementation
-
-Here's how to create a basic implementation using EasyaSDK. This allows you to connect or disconnect from a default wallet and display the account balance in the native currency:
-
-```tsx
-import React from 'react';
-import * as EasyaSDK from '../../packages/easya-react/src';
-import { EasyaConfig } from '../../src/core/types';
-
-const blockchainConfig: EasyaConfig = {
-    network: 'testnet',
-    blockchain: 'xrpl',
+const config: EasyaConfig = {
+    blockchain: 'XRPL', // or 'Aptos'
+    network: 'TESTNET',
+    wallet: 'Xumm'
 };
 
-const App: React.FC = () => {
+const easyaSDK = new EasyaSDK(config);
+await easyaSDK.connect();
+const address = await easyaSDK.getAddress();
+console.log('Connected Address:', address);
+
+```
+
+
+**Example: Get Balance**
+
+```javascript
+const balance = await easyaSDK.getBalance();
+console.log('Balance:', balance, easyaSDK.getCurrencySymbol());
+```
+
+
+```javascript
+import { TransactionConfig } from '@easya/layer-js/core/types';
+
+const transactionConfig: TransactionConfig = {
+    to: 'rRecipientAddress...',
+    amount: '10'
+};
+const result = await easyaSDK.sendTransaction(transactionConfig);
+console.log('Transaction Result:', result);
+```
+
+
+
+**React Example:**
+
+
+```jsx
+import React, { useState, useEffect } from 'react';
+import { EasyaSDK } from '@easya/layer-js';
+import { EasyaConfig } from '@easya/layer-js/core/types';
+
+const config: EasyaConfig = { blockchain: 'XRPL', network: 'TESTNET', wallet: 'Xumm' };
+const easyaSDK = new EasyaSDK(config);
+
+function BlockchainComponent() {
+    const [balance, setBalance] = useState(null);
+
+    useEffect(() => {
+        async function fetchBalance() {
+            await easyaSDK.connect(); // Connect in useEffect
+            const bal = await easyaSDK.getBalance();
+            setBalance(bal);
+            easyaSDK.disconnect(); // Disconnect on unmount or after fetching
+        }
+        fetchBalance();
+    }, []);
+
     return (
-        <EasyaSDK.BlockchainProvider config={blockchainConfig}>
-            <div className="app-container">
-                <div className="content-wrapper">
-                    <div className="card">
-                        <div className="card-content">
-                            <div className="content-section">
-                                <h1 className="title">EasyaSDK Demo</h1>
-                                <div className="components-container">
-                                    <EasyaSDK.ConnectButton />
-                                    <EasyaSDK.BalanceDisplay />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </EasyaSDK.BlockchainProvider>
+        <div>
+            <p>Balance: {balance} {easyaSDK.getCurrencySymbol()}</p>
+        </div>
     );
-};
-
-export default App;
-```
-
-## Available Components
-
-- **BlockchainProvider**: Provides blockchain context to all child components
-- **ConnectButton**: Handles wallet connection/disconnection
-- **BalanceDisplay**: Shows current wallet balance
-- **AddressDisplay**: Displays connected wallet address
-- **NFTMintingForm**: Interface for minting new NFTs
-- **NFTTransferForm**: Interface for transferring NFTs
-- **NFTGallery**: Displays owned NFTs
-- **TransactionForm**: Handles general transactions
-
-## Configuration
-
-The SDK is configured to work with the XRPL testnet by default. You can modify the `blockchainConfig` object to change network settings:
-
-```typescript
-const blockchainConfig: EasyaConfig = {
-    network: 'testnet', // or 'mainnet'
-    blockchain: 'xrpl',
-};
+}
+export default BlockchainComponent;
 ```
