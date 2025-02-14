@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { EasyaConfig } from 'easya-sdk-core/dist/core/types';
-import { ConfigSelector, EventDisplay, AddressDisplay, BalanceDisplay, BalancesDisplay, BlockchainProvider, ConnectButton, IssueTokenForm, TransactionForm, TrustLineForm } from 'easya-react';
+import { ConfigSelector, EventDisplay, AddressDisplay, BalanceDisplay, BalancesDisplay, BlockchainProvider, ConnectButton, IssueTokenForm, TransactionForm, TrustLineForm } from '@easya/layer-ui-react';
 
 const ComponentsContainer: React.FC<{ blockchainConfig: EasyaConfig }> = ({ blockchainConfig }) => {
     // Create a unique key based on the config

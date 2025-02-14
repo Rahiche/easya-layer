@@ -1,6 +1,6 @@
 {
   "name": "@easya/layer-ui-react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -11,8 +11,9 @@
     "src/**/*.css"
   ],
   "scripts": {
-    "build": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --external react-dom --inject src/styles/inject.js",
+    "build": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --external react-dom --external @easya/layer-js --inject src/styles/inject.js --treeshake --minify",
     "dev": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --watch --inject src/styles/inject.js",
+    "analyze": "tsup src/index.tsx --metafile=meta.json",
     "lint": "eslint src/**/*.ts*",
     "clean": "rm -rf dist"
   },
@@ -27,8 +28,6 @@
     "@types/react-dom": "^18.0.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
     "tsup": "^7.0.0",
     "typescript": "^5.7.3"
   },
