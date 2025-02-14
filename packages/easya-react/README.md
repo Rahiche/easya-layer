@@ -1,35 +1,52 @@
-# EasyA SDK Integration Guide
+# @easya/layer-ui-react
 
-Quick guide to get started with EasyA SDK in your React application.
+A React component library for building blockchain applications with ease, focusing on XRPL integration (more coming soon).
+
+## Features
+
+- 🔗 Seamless blockchain connectivity
+- 💰 Token management components
+- 🎨 Dark/Light mode support
+- 🔐 Wallet integration
+- 📊 Balance display components
+- 🔄 Transaction handling
 
 ## Installation
 
-Install the EasyA SDK package in your React project:
-
 ```bash
-npm install @easya/react
+npm install @easya/layer-ui-react
+# or
+yarn add @easya/layer-ui-react
 ```
 
-## Basic Implementation
-Here's a minimal example showing how to integrate the EasyA SDK with a connect button:
+## Quick Start
 
-```tsx
-const App = () => {
-    return (
-        <EasyaSDK.BlockchainProvider config={blockchainConfig}>
-            <div style={{ 
-                minHeight: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textAlign: 'center'
-            }}>
-                <h1>My Web3 App</h1>
-                <EasyaSDK.ConnectButton />
-            </div>
-        </EasyaSDK.BlockchainProvider>
-    );
+```typescript
+import { BlockchainProvider, ConnectButton } from '@easya/layer-ui-react';
+
+const config = {
+  network: 'testnet',
+  blockchain: 'xrpl',
+  wallet: 'crossmark'
 };
+
+function App() {
+  return (
+    <BlockchainProvider config={config}>
+      <ConnectButton />
+    </BlockchainProvider>
+  );
+}
 ```
 
+
+## Core Components:
+
+`BlockchainProvider` - Provides blockchain context to all components
+`ConnectButton` - Button to connect/disconnect wallet
+`AddressDisplay` - Shows wallet address
+`BalanceDisplay` - Shows XRP balance
+`BalancesDisplay` - Shows all token balances
+`TransactionForm` - Send tokens/XRP
+`IssueTokenForm` - Create new fungible tokens
+`TrustLineForm` - Create token trust lines

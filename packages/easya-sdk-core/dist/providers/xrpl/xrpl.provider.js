@@ -71,7 +71,7 @@ class XRPLProvider {
             const limitAmount = currencyCodeValidator_1.TrustSetHandler.createLimitAmount(config.currencyCode, coldWallet.wallet.address, config.amount);
             const trustSetTx = {
                 TransactionType: "TrustSet",
-                Account: this.walletInfo.address, // Hot wallet
+                Account: this.walletInfo.address,
                 LimitAmount: limitAmount
             };
             const preparedTrustSet = await this.connection.autofill(trustSetTx);

@@ -102,9 +102,19 @@ interface BlockchainValues {
     domain: string;
     requireDestTag: boolean;
     disallowXRP: boolean;
+    generateColdWallet: boolean;
+    coldWalletAddress?: string;
+    coldWalletSecret?: string;
+}
+declare enum ConnectionStatus {
+    CONNECTED = "connected",
+    DISCONNECTED = "disconnected",
+    DISCONNECTING = "disconnecting",
+    CONNECTING = "connecting",
+    FIALED = "failed"
 }
 interface BlockchainContextType {
-    connectionStatus: string;
+    connectionStatus: ConnectionStatus;
     transactionStatus: string;
     values: BlockchainValues;
     updateValue: (key: keyof BlockchainValues, value: any) => void;
