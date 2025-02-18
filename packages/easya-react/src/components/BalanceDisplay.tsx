@@ -52,7 +52,7 @@ export const BalanceDisplay: React.FC<BalanceDisplayProps> = ({
       return 'Not connected';
     }
     
-    if (connectionStatus === ConnectionStatus.CONNECTED) {
+    if (connectionStatus === ConnectionStatus.CONNECTING) {
       return 'Connecting...';
     }
     
