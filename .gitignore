@@ -2,4 +2,6 @@
 node_modules
 
 # Build output
-**/dist/**
+dist/
+**/dist/
+packages/**/dist/
