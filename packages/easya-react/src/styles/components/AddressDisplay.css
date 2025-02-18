@@ -3,7 +3,7 @@
     border: 1px solid var(--easya-border);
     border-radius: var(--easya-radius-md);
     padding: var(--easya-spacing-md);
-    background-color: var(--easya-surface);
+    background-color: var(--easya-background);
     color: var(--easya-text);
 }
 
@@ -64,7 +64,7 @@
 
 .easya-address-display__copy:hover:not(:disabled),
 .easya-address-display__refresh:hover:not(:disabled) {
-    background-color: var(--easya-surface-hover);
+    background-color: var(--easya-background-hover);
     border-color: var(--easya-border-hover);
 }
 

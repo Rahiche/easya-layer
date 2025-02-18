@@ -19,11 +19,10 @@
     --easya-info-hover: #0284c7;
 
     /* Dark Theme Colors */
-    --easya-background: #111827;
+    --easya-background: #1f2937;
+    --easya-background-hover: #374151;
     --easya-background-secondary: #1f2937;
     --easya-background-tertiary: #374151;
-    --easya-surface: #1f2937;
-    --easya-surface-hover: #374151;
 
     /* Text Colors */
     --easya-text: #f9fafb;

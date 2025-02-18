@@ -47,7 +47,7 @@
 }
 
 .button-disconnecting:hover:not(:disabled) {
-    background-color: var(--easya-surface-hover);
+    background-color: var(--easya-background-hover);
 }
 
 .status-text {
