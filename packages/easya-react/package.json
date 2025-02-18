@@ -14,8 +14,8 @@
     "src/**/*.css"
   ],
   "scripts": {
-    "build": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --external react-dom --inject src/styles/inject.js",
-    "dev": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --watch --inject src/styles/inject.js",
+    "build": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --external react-dom --inject src/styles/inject.js --clean --treeshake --minify --sourcemap",
+    "dev": "tsup src/index.tsx src/styles/index.css --format cjs,esm --dts --external react --external react-dom --watch --inject src/styles/inject.js --onSuccess=\"echo Build completed successfully!\"",
     "lint": "eslint src/**/*.ts*",
     "clean": "rm -rf dist"
   },
